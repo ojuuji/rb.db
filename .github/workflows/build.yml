@@ -8,16 +8,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: check out the repository
-        uses: actions/checkout@v4
+      - name: build sqlite3
+        run: |
+          SQLITE3VER=3460000
+          wget https://sqlite.org/2024/sqlite-autoconf-$SQLITE3VER.tar.gz
+          tar -xvf sqlite-autoconf-$SQLITE3VER.tar.gz
+          cd sqlite-autoconf-$SQLITE3VER
+          ./configure
+          make
+          sudo make install
 
       - name: setup python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
+      - name: check out the repository
+        uses: actions/checkout@v4
+
       - name: build database
         run: ./build.sh && xz data/rb.db
+        env:
+          LD_LIBRARY_PATH: /usr/local/lib
 
       - name: release database
         run: |
