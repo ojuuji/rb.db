@@ -32,21 +32,22 @@ def store_table(name, conn, rows):
 
 
 def import_table(name, conn):
+    print(f":: importing {name} ...", flush=True)
     rows = read_table(name)
     store_table(name, conn, rows)
 
 
 def import_themes(conn):
+    print(":: importing themes ...", flush=True)
+    rows = read_table('themes')
+
     # Table references itself. In order to apply foreign key constraint the
     # referenced rows must go first hence is the sorting
-    print(":: importing themes ...", flush=True)
-
-    rows = read_table('themes')
     sorted_rows = sorted(rows, key=lambda x: x['parent_id'] or '')
     store_table('themes', conn, sorted_rows)
 
 
-def import_all_tables(conn):
+def import_rb_tables(conn):
     import_themes(conn)
 
     tables = ['colors', 'part_categories', 'parts', 'part_relationships',
@@ -54,13 +55,11 @@ def import_all_tables(conn):
               'inventory_minifigs', 'inventory_parts', 'inventory_sets']
 
     for table in tables:
-        print(f":: importing {table} ...", flush=True)
         import_table(table, conn)
 
 
 if __name__ == '__main__':
-    print(f"python sqlite3.sqlite_version={sqlite3.sqlite_version}")
-
+    print(f":: sqlite runtime version in python: {sqlite3.sqlite_version}")
     with closing(sqlite3.connect(f'{WORKDIR}/data/rb.db')) as conn:
         conn.execute('PRAGMA foreign_keys = ON')
-        import_all_tables(conn)
+        import_rb_tables(conn)
