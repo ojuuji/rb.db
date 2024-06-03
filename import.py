@@ -49,9 +49,7 @@ def import_themes(conn):
 def import_all_tables(conn):
     import_themes(conn)
 
-    tables = ['colors', 'part_categories', 'parts', 'part_relationships',
-              'elements', 'minifigs', 'sets', 'inventories',
-              'inventory_minifigs', 'inventory_parts', 'inventory_sets']
+    tables = ['colors', 'part_categories', 'parts']
 
     for table in tables:
         print(f":: importing {table} ...", flush=True)
