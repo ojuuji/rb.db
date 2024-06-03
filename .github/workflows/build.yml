@@ -5,18 +5,18 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-      - name: build sqlite3
-        run: |
-          SQLITE3VER=3460000
-          wget https://sqlite.org/2024/sqlite-autoconf-$SQLITE3VER.tar.gz
-          tar -xvf sqlite-autoconf-$SQLITE3VER.tar.gz
-          cd sqlite-autoconf-$SQLITE3VER
-          ./configure
-          make
-          sudo make install
+      # - name: build sqlite3
+      #   run: |
+      #     SQLITE3VER=3460000
+      #     wget https://sqlite.org/2024/sqlite-autoconf-$SQLITE3VER.tar.gz
+      #     tar -xvf sqlite-autoconf-$SQLITE3VER.tar.gz
+      #     cd sqlite-autoconf-$SQLITE3VER
+      #     ./configure
+      #     make
+      #     sudo make install
 
       - name: setup python
         uses: actions/setup-python@v5
