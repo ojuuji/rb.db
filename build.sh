@@ -13,6 +13,7 @@ for TABLE in {themes,colors,parts,part_{categories,relationships},elements,sets,
 done
 
 echo ":: applying schema ..."
+echo "sqlite3 CLI version $(sqlite3 -version)"
 sqlite3 data/rb.db < schema.sql
 
 python import.py
