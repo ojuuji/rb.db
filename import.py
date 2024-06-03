@@ -11,13 +11,15 @@ WORKDIR = os.path.dirname(os.path.abspath(__file__))
 def read_table(name):
     with open(f'{WORKDIR}/data/{name}.csv', 'r', encoding='utf-8') as f:
         cf = csv.DictReader(f)
-        rows = [[None if v == '' else v for v in row.values()] for row in cf]
+        rows = []
+        for row in cf:
+            rows.append({k: None if v == '' else v for k, v in row.items()})
 
-        return cf.fieldnames, rows
+        return rows
 
 
-def store_table(name, conn, fieldnames, rows):
-    ph = ','.join([':' + key for key in fieldnames])
+def store_table(name, conn, rows):
+    ph = ','.join([':' + key for key in rows[0].keys()])
 
     with closing(conn.cursor()) as cursor:
         for row in rows:
@@ -30,8 +32,8 @@ def store_table(name, conn, fieldnames, rows):
 
 
 def import_table(name, conn):
-    fieldnames, rows = read_table(name)
-    store_table(name, conn, fieldnames, rows)
+    rows = read_table(name)
+    store_table(name, conn, rows)
 
 
 def import_themes(conn):
@@ -39,9 +41,9 @@ def import_themes(conn):
     # referenced rows must go first hence is the sorting
     print(":: importing themes ...", flush=True)
 
-    fieldnames, rows = read_table('themes')
-    sorted_rows = sorted(rows, key=lambda x: x[2] or '')
-    store_table('themes', conn, fieldnames, sorted_rows)
+    rows = read_table('themes')
+    sorted_rows = sorted(rows, key=lambda x: x['parent_id'] or '')
+    store_table('themes', conn, sorted_rows)
 
 
 def import_all_tables(conn):
