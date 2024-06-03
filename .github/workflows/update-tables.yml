@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: check out the repository
+        uses: actions/checkout@v4
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: build database
+        run: ./build.sh && xz data/rb.db
+
+      - name: release database
+        run: |
+          set -xe
+          RELNAME="$(date +'%Y-%m-%d %H:%M')"
+          TAGNAME="${RELNAME//[ :]/-}"
+          gh release create "$TAGNAME" --target master --title "$RELNAME" data/rb.db.xz
+        env:
+          GH_TOKEN: ${{ github.token }}
