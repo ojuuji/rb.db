@@ -11,7 +11,7 @@ jobs:
       - name: setup python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: 3.12
 
       - name: check out the repository
         uses: actions/checkout@v4
@@ -25,10 +25,23 @@ jobs:
         run: xz data/rb.db
 
       - name: release database
+        id: release
         run: |
           set -xe
           RELNAME="$(date +'%Y-%m-%d %H:%M')"
+          echo "relname=${RELNAME}" >> $GITHUB_OUTPUT
           TAGNAME="${RELNAME//[ :]/-}"
-          gh release create "$TAGNAME" --target master --title "$RELNAME" data/rb.db.xz
+          gh release create "$TAGNAME" --target master --title "$RELNAME" --generate-notes=false data/rb.db.xz
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+
+      - name: update latest
+        run: |
+          set -xe
+          RELNAME="Latest (${{ steps.release.outputs.relname }})"
+          TAGNAME="latest"
+          gh release delete --cleanup-tag --yes "$TAGNAME" || true
+          sleep 13.37
+          gh release create "$TAGNAME" --target master --title "$RELNAME" --generate-notes=false data/rb.db.xz
         env:
           GH_TOKEN: ${{ secrets.PAT }}
