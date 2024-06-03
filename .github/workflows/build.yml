@@ -38,4 +38,4 @@ jobs:
           TAGNAME="${RELNAME//[ :]/-}"
           gh release create "$TAGNAME" --target master --title "$RELNAME" data/rb.db.xz
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.PAT }}
