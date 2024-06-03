@@ -12,6 +12,8 @@ for TABLE in {themes,colors,parts,part_{categories,relationships},elements,sets,
 	fi
 done
 
+ls -l data
+
 echo ":: sqlite CLI version: $(sqlite3 -version)"
 echo ":: applying schema ..."
 sqlite3 data/rb.db < schema.sql

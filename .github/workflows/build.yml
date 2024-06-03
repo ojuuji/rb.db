@@ -18,8 +18,6 @@ jobs:
 
       - name: build database
         run: ./build.sh
-        env:
-          LD_LIBRARY_PATH: /usr/local/lib
 
       - name: archive database
         run: xz data/rb.db
