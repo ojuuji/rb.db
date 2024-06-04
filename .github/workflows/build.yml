@@ -20,7 +20,7 @@ jobs:
         id: cachekey
         run: |
           set -xe
-          KEY="$(curl -s "https://rebrickable.com/downloads/" | grep -Po '<span class="pull-right"><small>\K.+?(?=</small>)' | head -1)"
+          KEY="$(curl -s "https://rebrickable.com/downloads/" | grep -Po '<span class="pull-right"><small>\K.+?(?=</small>)' | head -1 | tr -d ,)"
           echo "KEY=${KEY}" >> $GITHUB_OUTPUT
 
       - name: set up cache for rb tables
