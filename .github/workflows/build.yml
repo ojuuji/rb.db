@@ -40,7 +40,7 @@ jobs:
       - name: cache dump hash
         uses: actions/cache@v4
         with:
-          path: data/rb.db.dump.md5
+          path: data/rb.dump.md5
           key: dump-hash
 
       - name: compare dump hashes
@@ -48,10 +48,10 @@ jobs:
         run: |
           set -xe
           cd data
-          sqlite3 rb.db .dump | md5sum | cut -d\  -f1 > rb.db.dump.md5.new
+          sqlite3 rb.db .dump | md5sum | cut -d\  -f1 > rb.dump.md5.new
           SAME=1
-          diff rb.db.dump.md5 rb.db.dump.md5.new > /dev/null || SAME=0
-          mv -f rb.db.dump.md5{.new,}
+          test -f rb.dump.md5 && diff rb.dump.md5{,.new} > /dev/null || SAME=0
+          mv -f rb.dump.md5{.new,}
           echo "same=${SAME}" >> $GITHUB_OUTPUT
 
       - name: prepare release files
