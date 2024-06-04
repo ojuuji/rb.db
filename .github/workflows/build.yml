@@ -20,8 +20,12 @@ jobs:
         id: cachekey
         run: |
           set -xe
-          KEY="$(curl -s "https://rebrickable.com/downloads/" | grep -Po '<span class="pull-right"><small>\K.+?(?=</small>)' | head -1 | tr -d ,)"
-          test -n "$KEY" || KEY="$(date --utc "+%Y%m%d%H")"
+          KEY="$(curl -s https://rebrickable.com/downloads/ \
+            | grep -Po '<span class="pull-right"><small>\K[^<]+' \
+            | head -1 \
+            | tr -d , \
+            | grep -Px '\w+ \d{1,2} \d{4} \d{1,2}:\d{2} [ap]\.m\.' \
+            || date --utc "+%Y%m%d%H")"
           echo "key=${KEY}" >> $GITHUB_OUTPUT
 
       - name: set up cache for rb tables
@@ -33,7 +37,25 @@ jobs:
       - name: build database
         run: ./build.sh
 
+      - name: cache dump hash
+        uses: actions/cache@v4
+        with:
+          path: data/rb.db.dump.md5
+          key: dump-hash
+
+      - name: compare dump hashes
+        id: hash
+        run: |
+          set -xe
+          cd data
+          sqlite3 rb.db .dump | md5sum | cut -d\  -f1 > rb.db.dump.md5.new
+          SAME=1
+          diff rb.db.dump.md5 rb.db.dump.md5.new > /dev/null || SAME=0
+          mv -f rb.db.dump.md5{.new,}
+          echo "same=${SAME}" >> $GITHUB_OUTPUT
+
       - name: prepare release files
+        if: ${{ steps.hash.outputs.same == '0' }}
         run: |
           set -xe
           cd data
@@ -41,6 +63,7 @@ jobs:
           xz rb.db
 
       - name: create release
+        if: ${{ steps.hash.outputs.same == '0' }}
         id: release
         run: |
           set -xe
@@ -52,6 +75,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
 
       - name: update latest
+        if: ${{ steps.hash.outputs.same == '0' }}
         run: |
           set -xe
           RELNAME="Latest (${{ steps.release.outputs.relname }})"
@@ -63,6 +87,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
 
       - name: prune old releases
+        if: ${{ steps.hash.outputs.same == '0' }}
         run: |
           set -xe
           NKEEP=20
