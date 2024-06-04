@@ -21,7 +21,8 @@ jobs:
         run: |
           set -xe
           KEY="$(curl -s "https://rebrickable.com/downloads/" | grep -Po '<span class="pull-right"><small>\K.+?(?=</small>)' | head -1 | tr -d ,)"
-          echo "KEY=${KEY}" >> $GITHUB_OUTPUT
+          test -n "$KEY" || KEY="$(date --utc "+%Y%m%d%H")"
+          echo "key=${KEY}" >> $GITHUB_OUTPUT
 
       - name: set up cache for rb tables
         uses: actions/cache@v4
@@ -32,17 +33,21 @@ jobs:
       - name: build database
         run: ./build.sh
 
-      - name: archive database
-        run: xz data/rb.db
+      - name: prepare release files
+        run: |
+          set -xe
+          cd data
+          shasum -a256 rb.db > rb.db.sha256
+          xz rb.db
 
-      - name: release database
+      - name: create release
         id: release
         run: |
           set -xe
           RELNAME="$(date +'%Y-%m-%d %H:%M')"
           echo "relname=${RELNAME}" >> $GITHUB_OUTPUT
           TAGNAME="${RELNAME//[ :]/-}"
-          gh release create "$TAGNAME" --target master --title "$RELNAME" data/rb.db.xz
+          gh release create "$TAGNAME" --target master --title "$RELNAME" data/rb.db.*
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
@@ -53,7 +58,7 @@ jobs:
           TAGNAME="latest"
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           sleep 13.37
-          gh release create "$TAGNAME" --target master --title "$RELNAME" data/rb.db.xz
+          gh release create "$TAGNAME" --target master --title "$RELNAME" data/rb.db.*
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
