@@ -16,6 +16,19 @@ jobs:
       - name: check out the repository
         uses: actions/checkout@v4
 
+      - name: create cache key for rb tables
+        id: cachekey
+        run: |
+          set -xe
+          KEY="$(curl -s "https://rebrickable.com/downloads/" | grep -Po '<span class="pull-right"><small>\K.+?(?=</small>)' | head -1)"
+          echo "KEY=${KEY}" >> $GITHUB_OUTPUT
+
+      - name: set up cache for rb tables
+        uses: actions/cache@v4
+        with:
+          path: data/*.csv
+          key: ${{ steps.cachekey.outputs.key }}
+
       - name: build database
         run: ./build.sh
 
