@@ -20,7 +20,7 @@ jobs:
         id: cachekey
         run: |
           set -xe
-          KEY="$(curl -s https://rebrickable.com/downloads/ \
+          KEY="RB Tables $(curl -s https://rebrickable.com/downloads/ \
             | grep -Po '<span class="pull-right"><small>\K[^<]+' \
             | head -1 \
             | tr -d , \
@@ -35,13 +35,13 @@ jobs:
           key: ${{ steps.cachekey.outputs.key }}
 
       - name: build database
-        run: ./build.sh
+        run: bash -x ./build.sh
 
       - name: cache dump hash
         uses: actions/cache@v4
         with:
           path: data/rb.dump.md5
-          key: dump-hash
+          key: SQL Dump Hash
 
       - name: compare dump hashes
         id: hash
@@ -54,43 +54,6 @@ jobs:
           mv -f rb.dump.md5{.new,}
           echo "same=${SAME}" >> $GITHUB_OUTPUT
 
-      - name: prepare release files
+      - name: release
         if: ${{ steps.hash.outputs.same == '0' }}
-        run: |
-          set -xe
-          cd data
-          shasum -a256 rb.db > rb.db.sha256
-          xz rb.db
-
-      - name: create release
-        if: ${{ steps.hash.outputs.same == '0' }}
-        id: release
-        run: |
-          set -xe
-          RELNAME="$(date +'%Y-%m-%d %H:%M')"
-          echo "relname=${RELNAME}" >> $GITHUB_OUTPUT
-          TAGNAME="${RELNAME//[ :]/-}"
-          gh release create "$TAGNAME" --target master --title "$RELNAME" data/rb.db.*
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}
-
-      - name: update latest
-        if: ${{ steps.hash.outputs.same == '0' }}
-        run: |
-          set -xe
-          RELNAME="Latest (${{ steps.release.outputs.relname }})"
-          TAGNAME="latest"
-          gh release delete --cleanup-tag --yes "$TAGNAME" || true
-          sleep 13.37
-          gh release create "$TAGNAME" --target master --title "$RELNAME" data/rb.db.*
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}
-
-      - name: prune old releases
-        if: ${{ steps.hash.outputs.same == '0' }}
-        run: |
-          set -xe
-          NKEEP=20
-          gh release list --json tagName --jq ".[].tagName" | tail -n+$((NKEEP+1)) | xargs -rn1 gh release delete --cleanup-tag --yes
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}
+        uses: ./github/actions/release
