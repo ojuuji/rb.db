@@ -6,9 +6,9 @@ on:
 
   push:
     paths:
-      - '*.py'
-      - '*.sh'
-      - '*.sql'
+      - '**.py'
+      - '**.sh'
+      - '**.sql'
 
   workflow_dispatch:
 

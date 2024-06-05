@@ -1,5 +1,5 @@
-from common import db_connect
 from contextlib import closing
+from dbconn import DbConnect
 from functools import cmp_to_key
 import re
 
@@ -34,14 +34,14 @@ select part_num, count(set_num), min(year), max(year)
 SQL_RELS_EXPAND = """
 select child_part_num c, parent_part_num p
   from part_relationships
- where rel_type = "{0}"
+ where rel_type = '{0}'
    and (c in ({1}) or p in ({1}))
 """
 
 SQL_RELS_LIST = """
 select *
   from part_relationships
- where rel_type in ("A", "M")
+ where rel_type in ('A', 'M')
 """
 
 
@@ -51,7 +51,7 @@ def find_all_rels(rel_type, conn, rels):
         while len(old_rels) != len(rels):
             old_rels = rels
             rels = set()
-            sql = SQL_RELS_EXPAND.format(rel_type, ','.join(f'"{m}"' for m in old_rels))
+            sql = SQL_RELS_EXPAND.format(rel_type, ','.join(f"'{m}'" for m in old_rels))
             for a, b in cur.execute(sql):
                 rels.update([a, b])
         return rels
@@ -120,5 +120,5 @@ def gen_part_rels_resolved(conn):
 
 
 if __name__ == '__main__':
-    with closing(db_connect()) as conn:
+    with DbConnect() as conn:
         gen_part_rels_resolved(conn)

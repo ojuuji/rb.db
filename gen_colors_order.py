@@ -1,6 +1,6 @@
-from common import db_connect
 from contextlib import closing
 import colorsys
+from dbconn import DbConnect
 
 
 class Color:
@@ -53,5 +53,5 @@ def gen_colors_order(conn):
 
 
 if __name__ == '__main__':
-    with closing(db_connect()) as conn:
+    with DbConnect() as conn:
         gen_colors_order(conn)

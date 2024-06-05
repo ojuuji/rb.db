@@ -1,5 +1,5 @@
-from common import db_connect, WORKDIR
 from contextlib import closing
+from dbconn import DbConnect, WORKDIR
 import csv
 import sys
 
@@ -54,5 +54,5 @@ def import_rb_tables(conn):
 
 
 if __name__ == '__main__':
-    with closing(db_connect()) as conn:
+    with DbConnect() as conn:
         import_rb_tables(conn)

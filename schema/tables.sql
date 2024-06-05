@@ -4,8 +4,6 @@
   Original Rebrickable tables
 */
 
-DROP TABLE IF EXISTS colors;
-
 CREATE TABLE colors(
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
@@ -14,22 +12,16 @@ CREATE TABLE colors(
   is_trans TEXT NOT NULL CHECK(is_trans IN ('f', 't'))
 ) STRICT;
 
-DROP TABLE IF EXISTS themes;
-
 CREATE TABLE themes(
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
   parent_id INTEGER REFERENCES themes(id)
 ) STRICT;
 
-DROP TABLE IF EXISTS part_categories;
-
 CREATE TABLE part_categories(
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL
 ) STRICT;
-
-DROP TABLE IF EXISTS parts;
 
 CREATE TABLE parts(
   -- part_num may also contain a dot ('14728c21.6') and a hyphen ('134916-740')
@@ -39,15 +31,11 @@ CREATE TABLE parts(
   part_material TEXT NOT NULL CHECK(part_material IN ('Cardboard/Paper', 'Cloth', 'Flexible Plastic', 'Foam', 'Metal', 'Plastic', 'Rubber'))
 ) STRICT;
 
-DROP TABLE IF EXISTS part_relationships;
-
 CREATE TABLE part_relationships(
   rel_type TEXT NOT NULL CHECK(rel_type IN ('A', 'B', 'M', 'P', 'R', 'T')),
   child_part_num TEXT NOT NULL REFERENCES parts(part_num),
   parent_part_num TEXT NOT NULL REFERENCES parts(part_num)
 ) STRICT;
-
-DROP TABLE IF EXISTS elements;
 
 CREATE TABLE elements(
   element_id INTEGER PRIMARY KEY,
@@ -56,16 +44,12 @@ CREATE TABLE elements(
   design_id INTEGER
 ) STRICT;
 
-DROP TABLE IF EXISTS minifigs;
-
 CREATE TABLE minifigs(
   fig_num TEXT PRIMARY KEY CHECK(NOT fig_num GLOB '*[^0-9A-Za-z-]*'),
   name TEXT NOT NULL,
   num_parts INTEGER NOT NULL,
   img_url TEXT NOT NULL CHECK(instr(img_url, 'https://cdn.rebrickable.com/media/sets/') == 1)
 ) STRICT;
-
-DROP TABLE IF EXISTS sets;
 
 CREATE TABLE sets(
   -- set_num may also contain a dot ('1224.1-1')
@@ -77,23 +61,17 @@ CREATE TABLE sets(
   img_url TEXT NOT NULL CHECK(instr(img_url, 'https://cdn.rebrickable.com/media/sets/') == 1)
 ) STRICT;
 
-DROP TABLE IF EXISTS inventories;
-
 CREATE TABLE inventories(
   id INTEGER PRIMARY KEY,
   version INTEGER NOT NULL CHECK(version >= 1),
   set_num TEXT NOT NULL REFERENCES set_nums(set_num)
 ) STRICT;
 
-DROP TABLE IF EXISTS inventory_minifigs;
-
 CREATE TABLE inventory_minifigs(
   inventory_id INTEGER NOT NULL REFERENCES inventories(id),
   fig_num TEXT NOT NULL REFERENCES minifigs(fig_num),
   quantity INTEGER NOT NULL
 ) STRICT;
-
-DROP TABLE IF EXISTS inventory_parts;
 
 CREATE TABLE inventory_parts(
   inventory_id INTEGER NOT NULL REFERENCES inventories(id),
@@ -103,8 +81,6 @@ CREATE TABLE inventory_parts(
   is_spare TEXT NOT NULL CHECK(is_spare IN ('f', 't')),
   img_url TEXT CHECK(instr(img_url, 'https://cdn.rebrickable.com/media/parts/') == 1)
 ) STRICT;
-
-DROP TABLE IF EXISTS inventory_sets;
 
 CREATE TABLE inventory_sets(
   inventory_id INTEGER NOT NULL REFERENCES inventories(id),
@@ -116,21 +92,15 @@ CREATE TABLE inventory_sets(
   Technical table to satisfy inventories.set_num foreign key constraint
 */
 
-DROP TABLE IF EXISTS set_nums;
-
 CREATE TABLE set_nums(
   set_num TEXT PRIMARY KEY
 ) STRICT;
-
-DROP TRIGGER IF EXISTS insert_set_num;
 
 CREATE TRIGGER insert_set_num
   AFTER INSERT ON sets FOR EACH ROW
 BEGIN
   INSERT INTO set_nums (set_num) VALUES (new.set_num);
 END;
-
-DROP TRIGGER IF EXISTS insert_fig_num;
 
 CREATE TRIGGER insert_fig_num
   AFTER INSERT ON minifigs FOR EACH ROW
@@ -142,14 +112,10 @@ END;
   Custom tables
 */
 
-DROP TABLE IF EXISTS colors_order;
-
 CREATE TABLE colors_order(
   position INTEGER PRIMARY KEY,
   color_id INTEGER NOT NULL REFERENCES colors(id)
 ) STRICT;
-
-DROP TABLE IF EXISTS part_rels_resolved;
 
 CREATE TABLE part_rels_resolved(
   rel_type TEXT NOT NULL CHECK(rel_type IN ('A', 'M')),
