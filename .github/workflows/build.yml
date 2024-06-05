@@ -44,7 +44,7 @@ jobs:
           key: ${{ steps.cachekey.outputs.key }}
 
       - name: build database
-        run: bash -x ./build.sh
+        run: bash -x build.sh && ls -l data
 
       - name: cache dump hash
         uses: actions/cache@v4
