@@ -21,7 +21,7 @@ echo ":: sqlite version: $(sqlite3 -version) (exe), $(python -c 'import sqlite3;
 echo ":: applying schema ..."
 sqlite3 data/rb.db < schema.sql
 
-python import.py
+python import_rb_tables.py
 python gen_colors_order.py
 python gen_part_rels_resolved.py
 

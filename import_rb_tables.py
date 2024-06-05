@@ -1,11 +1,7 @@
+from common import db_connect, WORKDIR
 from contextlib import closing
 import csv
-import os
-import sqlite3
 import sys
-
-
-WORKDIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def read_table(name):
@@ -21,14 +17,13 @@ def read_table(name):
 def store_table(name, conn, rows):
     ph = ','.join([':' + key for key in rows[0].keys()])
 
-    with closing(conn.cursor()) as cursor:
+    with conn, closing(conn.cursor()) as cursor:
         for row in rows:
             try:
                 cursor.execute(f'insert into {name} values({ph})', row)
             except Exception:
                 print(f"error inserting row {row}", file=sys.stderr)
                 raise
-        conn.commit()
 
 
 def import_table(name, conn):
@@ -59,6 +54,5 @@ def import_rb_tables(conn):
 
 
 if __name__ == '__main__':
-    with closing(sqlite3.connect(f'{WORKDIR}/data/rb.db')) as conn:
-        conn.execute('PRAGMA foreign_keys = ON')
+    with closing(db_connect()) as conn:
         import_rb_tables(conn)

@@ -1,11 +1,7 @@
+from common import db_connect
 from contextlib import closing
 from functools import cmp_to_key
-import os
 import re
-import sqlite3
-
-
-WORKDIR = os.path.dirname(os.path.abspath(__file__))
 
 
 SQL_STATS = """
@@ -49,8 +45,8 @@ select *
 """
 
 
-def find_all_rels(rel_type, con, rels):
-    with closing(con.cursor()) as cur:
+def find_all_rels(rel_type, conn, rels):
+    with closing(conn.cursor()) as cur:
         old_rels = set()
         while len(old_rels) != len(rels):
             old_rels = rels
@@ -97,30 +93,32 @@ def cmp_parts(a, b, stats, rel_type):
     return -1 if sa < sb else 1 if sa > sb else 0
 
 
-def insert_rels(rels, stats, rel_type, con):
+def insert_rels(rels, stats, rel_type, conn):
     key = cmp_to_key(lambda a, b: cmp_parts(a, b, stats, rel_type))
     resolved, *rels = sorted(list(rels), key=key)
 
-    with con, closing(con.cursor()) as cur:
+    with conn, closing(conn.cursor()) as cur:
         cur.executemany('insert into part_rels_resolved values (?, ?, ?)',
                         [(rel_type, rel, resolved) for rel in rels])
 
 
-def gen_part_rels_resolved(con):
+def gen_part_rels_resolved(conn):
+    print(":: generating part_rels_resolved ...")
+
     stats = {}
     resolved = {'A': set(), 'M': set()}
 
-    with closing(con.cursor()) as cur:
+    with closing(conn.cursor()) as cur:
         for part_num, num_sets, min_year, max_year in cur.execute(SQL_STATS):
             stats[part_num] = [num_sets, min_year, max_year]
 
         for rel_type, child, parent in cur.execute(SQL_RELS_LIST):
             if rel_type in resolved and child not in resolved[rel_type]:
-                rels = find_all_rels(rel_type, con, {child, parent})
+                rels = find_all_rels(rel_type, conn, {child, parent})
                 resolved[rel_type].update(rels)
-                insert_rels(rels, stats, rel_type, con)
+                insert_rels(rels, stats, rel_type, conn)
 
 
 if __name__ == '__main__':
-    with closing(sqlite3.connect(f'{WORKDIR}/data/rb.db')) as conn:
+    with closing(db_connect()) as conn:
         gen_part_rels_resolved(conn)

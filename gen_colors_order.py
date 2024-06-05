@@ -1,10 +1,6 @@
+from common import db_connect
 from contextlib import closing
 import colorsys
-import os
-import sqlite3
-
-
-WORKDIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class Color:
@@ -49,15 +45,13 @@ def gen_colors_order(conn):
             colors.append(Color(id, name, rgb))
 
     sorted_colors = sorted(colors)
-    with closing(conn.cursor()) as cur:
+    with conn, closing(conn.cursor()) as cur:
         pos = 0
         for color in sorted_colors:
             cur.execute('insert into colors_order values (?, ?)', (pos, color.id))
             pos = pos + 1
 
-        conn.commit()
-
 
 if __name__ == '__main__':
-    with closing(sqlite3.connect(f'{WORKDIR}/data/rb.db')) as conn:
+    with closing(db_connect()) as conn:
         gen_colors_order(conn)
