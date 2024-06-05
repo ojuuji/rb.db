@@ -1,6 +1,15 @@
 name: Build
 
 on:
+  schedule:
+    - cron: '52 7 * * *'  # daily at 7:52
+
+  push:
+    paths:
+      - '*.py'
+      - '*.sh'
+      - '*.sql'
+
   workflow_dispatch:
 
 jobs:
