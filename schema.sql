@@ -1,5 +1,9 @@
 .bail ON
 
+/*
+  Original Rebrickable tables
+*/
+
 DROP TABLE IF EXISTS colors;
 
 CREATE TABLE colors(
@@ -109,10 +113,7 @@ CREATE TABLE inventory_sets(
 ) STRICT;
 
 /*
-  inventories.set_num may be either sets.set_num or minifigs.fig_num. We cannot
-  reference them both as foreign key for inventories.set_num so they both are
-  combined in set_nums table below and then set_nums.set_num is referenced as
-  foreign key.
+  Technical table to satisfy inventories.set_num foreign key constraint
 */
 
 DROP TABLE IF EXISTS set_nums;
@@ -121,18 +122,29 @@ CREATE TABLE set_nums(
   set_num TEXT PRIMARY KEY
 ) STRICT;
 
-drop trigger IF EXISTS insert_set_num;
+DROP TRIGGER IF EXISTS insert_set_num;
 
-create trigger insert_set_num
-  after insert on sets for each row
-begin
-  insert into set_nums (set_num) values (new.set_num);
-end;
+CREATE TRIGGER insert_set_num
+  AFTER INSERT ON sets FOR EACH ROW
+BEGIN
+  INSERT INTO set_nums (set_num) VALUES (new.set_num);
+END;
 
-drop trigger IF EXISTS insert_fig_num;
+DROP TRIGGER IF EXISTS insert_fig_num;
 
-create trigger insert_fig_num
-  after insert on minifigs for each row
-begin
-  insert into set_nums (set_num) values (new.fig_num);
-end;
+CREATE TRIGGER insert_fig_num
+  AFTER INSERT ON minifigs FOR EACH ROW
+BEGIN
+  INSERT INTO set_nums (set_num) VALUES (new.fig_num);
+END;
+
+/*
+  Custom tables
+*/
+
+DROP TABLE IF EXISTS colors_order;
+
+CREATE TABLE colors_order(
+  position INTEGER PRIMARY KEY,
+  color_id INTEGER NOT NULL REFERENCES colors(id)
+) STRICT;

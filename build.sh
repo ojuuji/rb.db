@@ -16,10 +16,12 @@ done
 
 ls -l data
 
-echo ":: sqlite CLI version: $(sqlite3 -version)"
+echo ":: sqlite version: $(sqlite3 -version) (exe), $(python -c 'import sqlite3; print(sqlite3.sqlite_version)') (python)"
+
 echo ":: applying schema ..."
 sqlite3 data/rb.db < schema.sql
 
 python import.py
+python gen_colors_order.py
 
 echo ":: done"
