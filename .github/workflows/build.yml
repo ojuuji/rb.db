@@ -5,6 +5,8 @@ on:
     - cron: '52 7 * * *'  # daily at 7:52
 
   push:
+    branches:
+      - master
     paths:
       - '**.py'
       - '**.sh'
