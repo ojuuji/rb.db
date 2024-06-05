@@ -103,7 +103,7 @@ jobs:
         if: ${{ steps.hash.outputs.same == '0' }}
         run: |
           set -xe
-          NKEEP=20
+          NKEEP=3
           gh release list --json tagName --jq ".[].tagName" | tail -n+$((NKEEP+1)) | xargs -rn1 gh release delete --cleanup-tag --yes
         env:
           GH_TOKEN: ${{ secrets.PAT }}
