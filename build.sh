@@ -23,5 +23,6 @@ sqlite3 data/rb.db < schema.sql
 
 python import.py
 python gen_colors_order.py
+python gen_part_rels_resolved.py
 
 echo ":: done"

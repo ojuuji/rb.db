@@ -148,3 +148,11 @@ CREATE TABLE colors_order(
   position INTEGER PRIMARY KEY,
   color_id INTEGER NOT NULL REFERENCES colors(id)
 ) STRICT;
+
+DROP TABLE IF EXISTS part_rels_resolved;
+
+CREATE TABLE part_rels_resolved(
+  rel_type TEXT NOT NULL CHECK(rel_type IN ('A', 'M')),
+  child_part_num TEXT NOT NULL REFERENCES parts(part_num),
+  parent_part_num TEXT NOT NULL REFERENCES parts(part_num)
+) STRICT;

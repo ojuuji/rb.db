@@ -59,7 +59,6 @@ def import_rb_tables(conn):
 
 
 if __name__ == '__main__':
-    print(f":: sqlite runtime version in python: {sqlite3.sqlite_version}")
     with closing(sqlite3.connect(f'{WORKDIR}/data/rb.db')) as conn:
         conn.execute('PRAGMA foreign_keys = ON')
         import_rb_tables(conn)
