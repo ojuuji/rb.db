@@ -109,3 +109,11 @@ jobs:
           gh release list --json tagName --jq ".[].tagName" | tail -n+$((NKEEP+1)) | xargs -rn1 gh release delete --cleanup-tag --yes
         env:
           GH_TOKEN: ${{ secrets.PAT }}
+
+      - name: prune old caches
+        run: |
+          set -xe
+          NKEEP=3
+          gh cache list --json id --jq ".[].id" | tail -n+$((NKEEP+1)) | xargs -rn1 gh cache delete
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
