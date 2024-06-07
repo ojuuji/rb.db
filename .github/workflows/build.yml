@@ -103,10 +103,7 @@ jobs:
 
       - name: prune old releases
         if: ${{ steps.hash.outputs.same == '0' }}
-        run: |
-          set -xe
-          NKEEP=3
-          gh release list --json tagName --jq ".[].tagName" | tail -n+$((NKEEP+1)) | xargs -rn1 gh release delete --cleanup-tag --yes
+        run: ./utils/prune_old_releases.sh
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
