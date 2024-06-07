@@ -7,7 +7,7 @@ WORKDIR = os.path.dirname(os.path.abspath(__file__))
 
 class DbConnect():
     def __enter__(self):
-        self.conn = sqlite3.connect(f'{WORKDIR}/data/rb.db')
+        self.conn = sqlite3.connect(f'{WORKDIR}/../data/rb.db')
         self.conn.execute('PRAGMA foreign_keys = ON')
 
         return self.conn

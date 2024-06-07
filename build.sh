@@ -16,19 +16,19 @@ for TABLE in {themes,colors,parts,part_{categories,relationships},elements,sets,
 	fi
 done
 
-echo ":: sqlite version: $(sqlite3 -version) (exe), $(python -c 'import sqlite3; print(sqlite3.sqlite_version)') (python)"
+echo ":: sqlite version: $(sqlite3 -version | grep -Po '(\d+\.)+\d+') (exe), $(python -c 'import sqlite3; print(sqlite3.sqlite_version)') (python)"
 
 echo ":: applying schema ..."
 sqlite3 data/rb.db < schema/drop.sql
 sqlite3 data/rb.db < schema/tables.sql
 
-python import_rb_tables.py
+python build/import_rb_tables.py
 
 echo ":: creating indexes on rb tables ..."
 sqlite3 data/rb.db < schema/indexes_rb.sql
 
-python gen_colors_order.py
-python gen_part_rels_resolved.py
+python build/gen_colors_order.py
+python build/gen_part_rels_resolved.py
 
 echo ":: creating indexes on custom tables ..."
 sqlite3 data/rb.db < schema/indexes_custom.sql

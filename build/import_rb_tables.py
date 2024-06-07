@@ -5,7 +5,7 @@ import sys
 
 
 def read_table(name):
-    with open(f'{WORKDIR}/data/{name}.csv', 'r', encoding='utf-8') as f:
+    with open(f'{WORKDIR}/../data/{name}.csv', 'r', encoding='utf-8') as f:
         cf = csv.DictReader(f)
         rows = []
         for row in cf:
