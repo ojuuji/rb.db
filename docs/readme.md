@@ -35,7 +35,7 @@ Schema of the [Rebrickable Tables](#rebrickable-tables) is described in the sect
 
 Almost all columns in Rebrickable tables cannot be `NULL`. Thus this is not mentioned in the columns description, and only for nullable columns there will be explicit note about this.
 
-### Note about import from CSV
+#### Note about import from CSV
 
 Original Rebrickable tables are provided in CSV format. SQLite [can import](https://sqlite.org/cli.html#importing_files_as_csv_or_other_formats) tables from CSV files directly. However it unconditionally treats empty values as empty strings ([details](https://sqlite.org/forum/forumpost/9da85fe4fc6760c4)) whereas in context of Rebrickable tables these values have to become `NULL` in database.
 
