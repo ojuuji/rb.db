@@ -42,6 +42,8 @@ jobs:
 
       - name: Inject release info
         run: bash -x ./utils/inject_release_info.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
