@@ -23,6 +23,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Inject release info
+        run: bash -x ./utils/inject_release_info.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -39,11 +44,6 @@ jobs:
       # for plugins and that one is not in it
       - name: Fix external links
         run: find ./_site -name '*.html' | xargs sed -i 's|<a href="https://|<a target="_blank" href="https://|g'
-
-      - name: Inject release info
-        run: bash -x ./utils/inject_release_info.sh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
