@@ -1,4 +1,5 @@
 
+- [Database Schema](#database-schema)
 - [Rebrickable Tables](#rebrickable-tables)
   - [colors](#colors)
   - [parts](#parts)
