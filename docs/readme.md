@@ -10,8 +10,8 @@
     - [`R` - Pair](#r---pair)
     - [`T` - Pattern](#t---pattern)
 - [Custom Tables](#custom-tables)
-  - [colors_order](#colors-order)
-  - [part_rels_resolved](#part-rels-resolved)
+  - [colors_order](#colors_order)
+  - [part_rels_resolved](#part_rels_resolved)
 
 The main goal of `rb.db` is to provide original, unmodified tables from [Rebrickable Downloads](https://rebrickable.com/downloads/) in a form of ready-to-use SQLite database file, built on schedule, so the latest release provides always up-to-date version of the database.
 
