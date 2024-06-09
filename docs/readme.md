@@ -13,6 +13,8 @@
   - [colors_order](#colors_order)
   - [part_rels_resolved](#part_rels_resolved)
 
+{% include download.html %}
+
 The main goal of `rb.db` is to provide original, unmodified tables from [Rebrickable Downloads](https://rebrickable.com/downloads/) in a form of ready-to-use SQLite database file, built on schedule, so the latest release provides always up-to-date version of the database.
 
 Releases are built automatically on a schedule and follow this retention policy:
