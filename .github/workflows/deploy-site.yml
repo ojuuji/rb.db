@@ -3,10 +3,7 @@ name: Deploy site
 on:
   push:
     branches: [master]
-  #   paths: ['docs/**']
-
-  # push:
-  #   tags: [latest]
+    paths: ['docs/**']
 
   workflow_dispatch:
 

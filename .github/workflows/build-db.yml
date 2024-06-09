@@ -101,6 +101,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
+      - name: deploy site
+        if: ${{ steps.hash.outputs.same == '0' }}
+        run: |
+          set -xe
+          WORKFLOW_ID="$(gh workflow list | grep -Poi 'site.+\s\K\d+$')"
+          gh workflow run "$WORKFLOW_ID"
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+
       - name: prune old releases
         if: ${{ steps.hash.outputs.same == '0' }}
         run: ./utils/prune_old_releases.sh
