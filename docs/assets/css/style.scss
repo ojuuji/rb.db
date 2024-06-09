@@ -8,6 +8,11 @@ header {
   font-size: 2em;
 }
 
+.download-release {
+  border: 1px solid lighten($gray-200, 3%);
+  padding-bottom: 1em;
+}
+
 /* TOC */
 hr + ul {
   padding: 1em;
