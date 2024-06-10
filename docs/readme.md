@@ -12,17 +12,17 @@
     - [`R` - Pair](#r---pair)
     - [`T` - Pattern](#t---pattern)
 - [Custom Tables](#custom-tables)
-  - [colors_order](#colors_order)
+  - [color_props](#color_props)
   - [part_rels_resolved](#part_rels_resolved)
 
 {% include download.html %}
 
-The main goal of `rb.db` is to provide original, unmodified tables from [Rebrickable Downloads](https://rebrickable.com/downloads/) in a form of ready-to-use SQLite database file, built on schedule, so the latest release provides always up-to-date version of the database.
+The main goal of `rb.db` is to provide original, unmodified tables from [Rebrickable Downloads](https://rebrickable.com/downloads/) in a form of ready-to-use SQLite database file, and build it on schedule, so the latest release provides always up-to-date version of the database.
 
 Releases are created automatically once a day, but only if there were actual changes since the last release.
 
 Retention policy:
-- git tag [`latest`](https://github.com/ojuuji/rb.db/releases/tag/latest) is always recreated when releasing new version, so the links to the latest version are always the same
+- git tag [`latest`]({{ site.github.repository_url }}/releases/tag/latest) is always recreated when releasing new version, so the links to the latest version are always the same
 - the last 10 releases are retained unconditionally
 - for older releases is retained the latest release of the month
 
@@ -203,17 +203,15 @@ Rebrickable uses this relationship along with relationship `P` in the build matc
 
 These tables are non-trivially generated, i.e. their data cannot be obtained using, for example, some simple query statement.
 
-## colors_order
+## color_props
 
-Columns: `position` (primary key), `color_id`.
+Columns: `sort_pos` (primary key), `color_id`.
 
-`position` is a color position in a sorted list of colors.
+`sort_pos` is a color position in a sorted list of colors. It is designed to help sorting parts by color.
 
 `color_id` is a reference (foreign key) to [`colors.id`](#colors) column.
 
-This table is used to sort by colors. For example, to sort parts with the same part number but different colors.
-
-Colors are ordered the following way:
+With the `sort_pos` colors are ordered the following way:
 1. `[Unknown]`
 2. `[No Color/Any Color]`
 3. `White`
@@ -221,11 +219,11 @@ Colors are ordered the following way:
 5. Grayscale colors from darker to lighter
 6. Remaining colors, ordered by [hue](https://en.wikipedia.org/wiki/Hue)
 
-This order of the colors tries to mimic the one in _"Your Colors"_ section on the part pages on Rebrickable.
+It is based on the colors order used in _"Your Colors"_ section on the part pages on Rebrickable.
 
 Example:
 ```
-$ sqlite3 -csv rb.db "select id, name from colors c join colors_order o on (c.id = o.color_id) order by o.position limit 10"
+$ sqlite3 -csv rb.db "select id, name from colors c join color_props o on (c.id = o.color_id) order by o.sort_pos limit 10"
 -1,[Unknown]
 9999,"[No Color/Any Color]"
 15,White

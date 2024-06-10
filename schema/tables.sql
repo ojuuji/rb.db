@@ -112,8 +112,8 @@ END;
   Custom tables
 */
 
-CREATE TABLE colors_order(
-  position INTEGER PRIMARY KEY,
+CREATE TABLE color_props(
+  sort_pos INTEGER PRIMARY KEY,
   color_id INTEGER NOT NULL REFERENCES colors(id)
 ) STRICT;
 
