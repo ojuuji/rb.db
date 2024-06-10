@@ -4,15 +4,14 @@
 @import "{{ site.theme }}";
 
 header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   font-weight: 600;
   font-size: 2em;
 }
 
 .download-release {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-wrap: wrap;
   border-bottom: 1px solid lighten($gray-200, 3%);
   padding-bottom: 1em;
 }
