@@ -9,6 +9,10 @@ header {
 }
 
 .download-release {
+  display: flex;
+  gap: 1ch;
+  align-items: center;
+  flex-wrap: wrap;
   border-bottom: 1px solid lighten($gray-200, 3%);
   padding-bottom: 1em;
 }
