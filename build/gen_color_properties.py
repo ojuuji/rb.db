@@ -36,8 +36,8 @@ class Color:
         return lh < rh if lh != rh else ls < rs if ls != rs else lv < rv
 
 
-def gen_color_props(conn):
-    print(":: generating color_props ...")
+def gen_color_properties(conn):
+    print(":: generating color_properties ...")
 
     colors = []
     with closing(conn.cursor()) as cur:
@@ -48,10 +48,10 @@ def gen_color_props(conn):
     with conn, closing(conn.cursor()) as cur:
         pos = 0
         for color in sorted_colors:
-            cur.execute('insert into color_props values (?, ?)', (pos, color.id))
+            cur.execute('insert into color_properties values (?, ?)', (pos, color.id))
             pos = pos + 1
 
 
 if __name__ == '__main__':
     with DbConnect() as conn:
-        gen_color_props(conn)
+        gen_color_properties(conn)

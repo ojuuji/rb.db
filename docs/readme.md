@@ -12,7 +12,7 @@
     - [`R` - Pair](#r---pair)
     - [`T` - Pattern](#t---pattern)
 - [Custom Tables](#custom-tables)
-  - [color_props](#color_props)
+  - [color_properties](#color_properties)
   - [part_rels_resolved](#part_rels_resolved)
 
 {% include download.html %}
@@ -203,7 +203,7 @@ Rebrickable uses this relationship along with relationship `P` in the build matc
 
 These tables are non-trivially generated, i.e. their data cannot be obtained using, for example, some simple query statement.
 
-## color_props
+## color_properties
 
 Columns: `sort_pos` (primary key), `color_id`.
 
@@ -223,7 +223,7 @@ It is based on the colors order used in _"Your Colors"_ section on the part page
 
 Example:
 ```
-$ sqlite3 -csv rb.db "select id, name from colors c join color_props o on (c.id = o.color_id) order by o.sort_pos limit 10"
+$ sqlite3 -csv rb.db "select id, name from colors c join color_properties o on (c.id = o.color_id) order by o.sort_pos limit 10"
 -1,[Unknown]
 9999,"[No Color/Any Color]"
 15,White
