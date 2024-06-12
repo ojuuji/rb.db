@@ -30,6 +30,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
+          cache: pip
+
+      - name: install python dependencies
+        run: pip install -r requirements.txt
 
       - name: create cache key for rb tables
         id: cachekey
