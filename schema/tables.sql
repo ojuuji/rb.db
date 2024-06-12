@@ -114,8 +114,12 @@ END;
 
 CREATE TABLE color_properties(
   sort_pos INTEGER PRIMARY KEY,
+  color_id INTEGER NOT NULL REFERENCES colors(id)
+) STRICT;
+
+CREATE TABLE similar_colors(
   color_id INTEGER NOT NULL REFERENCES colors(id),
-  delta_e REAL NOT NULL
+  similar_color_id INTEGER NOT NULL REFERENCES colors(id)
 ) STRICT;
 
 CREATE TABLE part_rels_resolved(

@@ -13,6 +13,7 @@
     - [`T` - Pattern](#t---pattern)
 - [Custom Tables](#custom-tables)
   - [color_properties](#color_properties)
+  - [similar_colors](#similar_colors)
   - [part_rels_resolved](#part_rels_resolved)
 
 {% include download.html %}
@@ -234,6 +235,42 @@ $ sqlite3 -csv rb.db "select id, name from colors c join color_properties o on (
 1016,"Modulex Charcoal Gray"
 1040,"Modulex Foil Dark Gray"
 1126,"HO Metallic Dark Gray"
+```
+
+## similar_colors
+
+Columns: `color_id`, `similar_color_id`.
+
+This table lists similar colors for every color. It is inspired by Rebrickable build matching option _"Part color sensitivity" → "Parts that have similar colors will be matched."_ though results may be different.
+
+`color_id` and `similar_color_id` are references (foreign keys) to [`colors.id`](#colors) column.
+
+Column `color_id` is indexed, so it is better to search by it instead of `similar_color_id`. For every row `X,Y` table also contains row `Y,X` so it is really enough to search only by `color_id`.
+
+Additional rules apply:
+- `[Unknown]` color is never similar to any color
+- `[No Color/Any Color]` color is similar to all colors
+- any other color is similar to itself i.e. for color `X` there will be row `X,X`
+
+Whether two colors are similar is determined using Delta E metric. [Here](https://zschuessler.github.io/DeltaE/learn/) is great reading about it. Specifically is used _"dE00"_ algorithm and the maximum Delta E value `20`.
+
+Example:
+```
+$ sqlite3 data/rb.db 'select similar_color_id from similar_colors where color_id = 26'
+22
+26
+63
+69
+236
+373
+1007
+1046
+1054
+1059
+1094
+1097
+1101
+9999
 ```
 
 ## part_rels_resolved

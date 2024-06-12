@@ -55,5 +55,8 @@ DROP TRIGGER IF EXISTS insert_fig_num;
 DROP TABLE IF EXISTS color_properties;
 DROP INDEX IF EXISTS color_properties_color_id_idx;
 
+DROP TABLE IF EXISTS similar_colors;
+DROP INDEX IF EXISTS similar_colors_color_id_idx;
+
 DROP TABLE IF EXISTS part_rels_resolved;
 DROP INDEX IF EXISTS part_rels_resolved_rel_type_child_part_num_idx;

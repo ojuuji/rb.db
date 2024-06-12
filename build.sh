@@ -28,6 +28,7 @@ echo ":: creating indexes on rb tables ..."
 sqlite3 data/rb.db < schema/indexes_rb.sql
 
 python build/gen_color_properties.py
+python build/gen_similar_colors.py
 python build/gen_part_rels_resolved.py
 
 echo ":: creating indexes on custom tables ..."
