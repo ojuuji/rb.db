@@ -5,43 +5,43 @@ import re
 
 
 SQL_STATS = """
-  with part_stats as (
+  WITH part_stats AS (
            /* parts from sets */
-    select sets.set_num set_num, sets.year year, ip.part_num part_num
-      from sets
-      join inventories i
-        on i.set_num = sets.set_num
-      join inventory_parts ip
-        on ip.inventory_id = i.id
-     union
+    SELECT sets.set_num set_num, sets.year year, ip.part_num part_num
+      FROM sets
+      JOIN inventories i
+        ON i.set_num = sets.set_num
+      JOIN inventory_parts ip
+        ON ip.inventory_id = i.id
+     UNION
            /* parts from minifigs included in the sets */
-    select i_fig.set_num set_num, sets.year year, ip_fig.part_num part_num
-      from sets
-      join inventories i
-        on i.set_num = sets.set_num
-      join inventory_minifigs im
-        on im.inventory_id = i.id
-      join inventories i_fig
-        on i_fig.set_num = im.fig_num
-      join inventory_parts ip_fig
-        on ip_fig.inventory_id = i_fig.id
+    SELECT i_fig.set_num set_num, sets.year year, ip_fig.part_num part_num
+      FROM sets
+      JOIN inventories i
+        ON i.set_num = sets.set_num
+      JOIN inventory_minifigs im
+        ON im.inventory_id = i.id
+      JOIN inventories i_fig
+        ON i_fig.set_num = im.fig_num
+      JOIN inventory_parts ip_fig
+        ON ip_fig.inventory_id = i_fig.id
 )
-select part_num, count(set_num), min(year), max(year)
-  from part_stats
- group by part_num
+SELECT part_num, count(set_num), min(year), max(year)
+  FROM part_stats
+ GROUP by part_num
 """
 
 SQL_RELS_EXPAND = """
-select child_part_num c, parent_part_num p
-  from part_relationships
- where rel_type = '{0}'
-   and (c in ({1}) or p in ({1}))
+SELECT child_part_num c, parent_part_num p
+  FROM part_relationships
+ WHERE rel_type = '{0}'
+   AND (c IN ({1}) OR p IN ({1}))
 """
 
 SQL_RELS_LIST = """
-select *
-  from part_relationships
- where rel_type in ('A', 'M')
+SELECT *
+  FROM part_relationships
+ WHERE rel_type IN ('A', 'M')
 """
 
 
@@ -98,7 +98,7 @@ def insert_rels(rels, stats, rel_type, conn):
     resolved, *rels = sorted(list(rels), key=key)
 
     with conn, closing(conn.cursor()) as cur:
-        cur.executemany('insert into part_rels_resolved values (?, ?, ?)',
+        cur.executemany('INSERT INTO part_rels_resolved VALUES (?, ?, ?)',
                         [(rel_type, rel, resolved) for rel in rels])
 
 

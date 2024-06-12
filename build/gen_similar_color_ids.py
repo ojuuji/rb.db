@@ -4,12 +4,12 @@ from dbconn import DbConnect
 
 
 SQL_CROSS_COLORS = """
-    select c1.id
+    SELECT c1.id
          , c1.rgb
          , c2.id
          , c2.rgb
-      from colors c1
-cross join colors c2
+      FROM colors c1
+CROSS JOIN colors c2
 """
 
 MAX_DELTA_E = 20
@@ -29,7 +29,7 @@ def gen_similar_color_ids(conn):
                     ids.append([id1, id2])
 
     with conn, closing(conn.cursor()) as cur:
-        cur.executemany('insert into similar_color_ids values (?, ?)', ids)
+        cur.executemany('INSERT INTO similar_color_ids VALUES (?, ?)', ids)
 
 
 if __name__ == '__main__':

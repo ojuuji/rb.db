@@ -20,7 +20,7 @@ def store_table(name, conn, rows):
     with conn, closing(conn.cursor()) as cursor:
         for row in rows:
             try:
-                cursor.execute(f'insert into {name} values({ph})', row)
+                cursor.execute(f'INSERT INTO {name} VALUES({ph})', row)
             except Exception:
                 print(f"error inserting row {row}", file=sys.stderr)
                 raise
