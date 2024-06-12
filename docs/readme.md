@@ -252,7 +252,7 @@ Additional rules apply:
 - `[No Color/Any Color]` color is similar to all colors
 - any other color is similar also to itself i.e. there will be row with `ref_id = id`
 
-Whether two colors are similar is determined using Delta E metric. [Here](https://zschuessler.github.io/DeltaE/learn/) is great reading about it. Specifically is used _"dE00"_ algorithm and the maximum Delta E value `20`.
+Whether two colors are similar is determined using Delta E metric. [Here](https://zschuessler.github.io/DeltaE/learn/) is great reading about it. Specifically is used _"dE00"_ algorithm and the maximum Delta E value `20`. For those curious, [Delta E chart for Rebrickable colors](delta_e_chart.html).
 
 Example:
 ```

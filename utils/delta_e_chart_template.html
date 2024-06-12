@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<head>
+<title>Delta E Chart for Rebrickable Colors</title>
+<style>
+#chart {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.delta, .color {
+	display: flex;
+	align-items: center;
+	width: 80px;
+	height: 24px;
+}
+.color {
+	font-family: 'Courier New', Courier, monospace;
+}
+</style>
+<body>
+<div id="chart"></div>
+<script>
+	const data = {{rows}};
+	const rows = data.map(([delta_e, rgb1, rgb2]) => {
+		return `
+<div>
+	<div class="delta">${delta_e}</div>
+	<div class="color" style="background:#${rgb1}">${rgb1}</div>
+	<div class="color" style="background:#${rgb2}">${rgb2}</div>
+</div>`;
+	}).join('');
+	document.getElementById('chart').innerHTML = rows;
+</script>
+</body>
