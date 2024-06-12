@@ -23,18 +23,18 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
+      - name: check out the repository
+        uses: actions/checkout@v4
+
       - name: setup python
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
 
-      - name: check out the repository
-        uses: actions/checkout@v4
-
       - name: create cache key for rb tables
         id: cachekey
         run: |
-          set -xe
+          set -xeu
           KEY="RB Tables $(curl -s https://rebrickable.com/downloads/ \
             | grep -Po '<span class="pull-right"><small>\K[^<]+' \
             | head -1 \
@@ -61,7 +61,7 @@ jobs:
       - name: compare dump hashes
         id: hash
         run: |
-          set -xe
+          set -xeu
           cd data
           sqlite3 rb.db .dump | md5sum | cut -d\  -f1 > rb.dump.md5.new
           SAME=1
@@ -72,7 +72,7 @@ jobs:
       - name: prepare release files
         if: ${{ steps.hash.outputs.same == '0' }}
         run: |
-          set -xe
+          set -xeu
           cd data
           shasum -a256 rb.db > rb.db.sha256
           xz rb.db
@@ -81,7 +81,7 @@ jobs:
         if: ${{ steps.hash.outputs.same == '0' }}
         id: release
         run: |
-          set -xe
+          set -xeu
           RELNAME="$(date +'%Y-%m-%d %H:%M')"
           echo "relname=${RELNAME}" >> $GITHUB_OUTPUT
           TAGNAME="${RELNAME//[ :]/-}"
@@ -92,7 +92,7 @@ jobs:
       - name: update latest
         if: ${{ steps.hash.outputs.same == '0' }}
         run: |
-          set -xe
+          set -xeu
           RELNAME="Latest (${{ steps.release.outputs.relname }})"
           TAGNAME="latest"
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
@@ -104,7 +104,7 @@ jobs:
       - name: deploy site
         if: ${{ steps.hash.outputs.same == '0' }}
         run: |
-          set -xe
+          set -xeu
           WORKFLOW_ID="$(gh workflow list | grep -Poi 'site.+\s\K\d+$')"
           gh workflow run "$WORKFLOW_ID"
         env:
@@ -118,7 +118,7 @@ jobs:
 
       - name: prune old caches
         run: |
-          set -xe
+          set -xeu
           NKEEP=3
           gh cache list --json id --jq ".[].id" | tail -n+$((NKEEP+1)) | xargs -rn1 gh cache delete
         env:

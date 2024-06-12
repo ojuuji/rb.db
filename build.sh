@@ -1,4 +1,6 @@
-#! /bin/bash -eu
+#! /bin/bash
+
+set -eu
 
 which curl gzip python sqlite3 > /dev/null
 
