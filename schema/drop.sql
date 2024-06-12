@@ -5,6 +5,7 @@
 */
 
 DROP TABLE IF EXISTS colors;
+DROP INDEX IF EXISTS colors_name_idx;
 
 DROP TABLE IF EXISTS themes;
 DROP INDEX IF EXISTS themes_parent_id_idx;
@@ -55,8 +56,9 @@ DROP TRIGGER IF EXISTS insert_fig_num;
 DROP TABLE IF EXISTS color_properties;
 DROP INDEX IF EXISTS color_properties_color_id_idx;
 
-DROP TABLE IF EXISTS similar_colors;
-DROP INDEX IF EXISTS similar_colors_color_id_idx;
+DROP TABLE IF EXISTS similar_color_ids;
+DROP INDEX IF EXISTS similar_color_ids_ref_id_idx;
+DROP VIEW IF EXISTS similar_colors;
 
 DROP TABLE IF EXISTS part_rels_resolved;
 DROP INDEX IF EXISTS part_rels_resolved_rel_type_child_part_num_idx;

@@ -1,5 +1,7 @@
 .bail ON
 
+CREATE INDEX colors_name_idx ON colors(name);
+
 CREATE INDEX themes_parent_id_idx ON themes(parent_id);
 
 CREATE INDEX parts_part_cat_id_idx ON parts(part_cat_id);

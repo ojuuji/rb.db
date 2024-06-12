@@ -239,38 +239,48 @@ $ sqlite3 -csv rb.db "select id, name from colors c join color_properties o on (
 
 ## similar_colors
 
-Columns: `color_id`, `similar_color_id`.
+Columns: `ref_id`, `ref_name`, `id`, `name`, `rgb`, `is_trans`.
 
 This table lists similar colors for every color. It is inspired by Rebrickable build matching option _"Part color sensitivity" → "Parts that have similar colors will be matched."_ though results may be different.
 
-`color_id` and `similar_color_id` are references (foreign keys) to [`colors.id`](#colors) column.
+`ref_id` and `id` are references (foreign keys) to [`colors.id`](#colors) column. Technically `similar_colors` is a view to `similar_color_ids`, which contains just these two columns and joined `colors` table on both of them.
 
-Column `color_id` is indexed, so it is better to search by it instead of `similar_color_id`. For every row `X,Y` table also contains row `Y,X` so it is really enough to search only by `color_id`.
+Column `ref_id` is indexed, so it is better to search by it instead of `id`. For every pair of similar colors `X→Y` table also contains pair `Y→X` so it is really enough to search only by `ref_id` or `ref_name`.
 
 Additional rules apply:
 - `[Unknown]` color is never similar to any color
 - `[No Color/Any Color]` color is similar to all colors
-- any other color is similar to itself i.e. for color `X` there will be row `X,X`
+- any other color is similar also to itself i.e. there will be row with `ref_id = id`
 
 Whether two colors are similar is determined using Delta E metric. [Here](https://zschuessler.github.io/DeltaE/learn/) is great reading about it. Specifically is used _"dE00"_ algorithm and the maximum Delta E value `20`.
 
 Example:
 ```
-$ sqlite3 data/rb.db 'select similar_color_id from similar_colors where color_id = 26'
-22
-26
-63
-69
-236
-373
-1007
-1046
-1054
-1059
-1094
-1097
-1101
-9999
+$ sqlite3 rb.db "select name from similar_colors where ref_name = 'Red'"
+Red
+Trans-Red
+Light Brown
+Rust
+Dark Red
+Dark Orange
+Vintage Red
+Modulex Red
+Modulex Pink Red
+Modulex Foil Red
+Dark Nougat
+Bright Reddish Orange
+Pearl Red
+Rust Orange
+Two-tone Copper
+Two-tone Gold
+Metallic Copper
+Trans-Neon Red
+HO Light Brown
+HO Medium Red
+HO Rose
+Reddish Orange
+Sienna Brown
+[No Color/Any Color]
 ```
 
 ## part_rels_resolved

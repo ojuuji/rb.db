@@ -117,10 +117,21 @@ CREATE TABLE color_properties(
   color_id INTEGER NOT NULL REFERENCES colors(id)
 ) STRICT;
 
-CREATE TABLE similar_colors(
-  color_id INTEGER NOT NULL REFERENCES colors(id),
-  similar_color_id INTEGER NOT NULL REFERENCES colors(id)
+CREATE TABLE similar_color_ids(
+  ref_id INTEGER NOT NULL REFERENCES colors(id),
+  id INTEGER NOT NULL REFERENCES colors(id)
 ) STRICT;
+
+CREATE VIEW similar_colors(
+  ref_id, ref_name, id, name, rgb, is_trans
+) AS
+  SELECT c.id, c.name, sc.id, sc.name, sc.rgb, sc.is_trans
+    FROM similar_color_ids i
+    JOIN colors c
+      ON c.id = i.ref_id
+    JOIN colors sc
+      ON sc.id = i.id
+ORDER BY i.rowid;
 
 CREATE TABLE part_rels_resolved(
   rel_type TEXT NOT NULL CHECK(rel_type IN ('A', 'M')),
