@@ -123,7 +123,7 @@ jobs:
       - name: prune old caches
         run: |
           set -xeu
-          NKEEP=3
+          NKEEP=5
           gh cache list --json id --jq ".[].id" | tail -n+$((NKEEP+1)) | xargs -rn1 gh cache delete
         env:
           GH_TOKEN: ${{ secrets.PAT }}
