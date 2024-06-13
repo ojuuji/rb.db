@@ -113,8 +113,8 @@ END;
 */
 
 CREATE TABLE color_properties(
-  sort_pos INTEGER PRIMARY KEY,
-  color_id INTEGER NOT NULL REFERENCES colors(id)
+  id INTEGER PRIMARY KEY REFERENCES colors(id),
+  sort_pos INTEGER NOT NULL
 ) STRICT;
 
 CREATE TABLE similar_color_ids(
@@ -144,5 +144,5 @@ CREATE TABLE rb_db_lov(
   value TEXT NOT NULL
 ) STRICT;
 
-INSERT INTO rb_db_lov VALUES('schema_version', '1');
+INSERT INTO rb_db_lov VALUES('schema_version', '2');
 INSERT INTO rb_db_lov VALUES('data_timestamp', strftime('%s', 'now'));

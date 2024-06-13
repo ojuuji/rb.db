@@ -54,7 +54,6 @@ DROP TRIGGER IF EXISTS insert_fig_num;
 */
 
 DROP TABLE IF EXISTS color_properties;
-DROP INDEX IF EXISTS color_properties_color_id_idx;
 
 DROP TABLE IF EXISTS similar_color_ids;
 DROP INDEX IF EXISTS similar_color_ids_ref_id_idx;

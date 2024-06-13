@@ -207,11 +207,11 @@ These tables are non-trivially generated, i.e. their data cannot be obtained usi
 
 ## color_properties
 
-Columns: `sort_pos` (primary key), `color_id`.
+Columns: `id` (primary key), `sort_pos`.
+
+`id` is a reference (foreign key) to [`colors.id`](#colors) column.
 
 `sort_pos` is a color position in a sorted list of colors. It is designed to help sorting parts by color.
-
-`color_id` is a reference (foreign key) to [`colors.id`](#colors) column.
 
 With the `sort_pos` colors are ordered the following way:
 1. `[Unknown]`
@@ -225,7 +225,7 @@ It is based on the colors order used in _"Your Colors"_ section on the part page
 
 Example:
 ```
-$ sqlite3 -csv rb.db "select id, name from colors c join color_properties o on (c.id = o.color_id) order by o.sort_pos limit 10"
+$ sqlite3 -csv rb.db "select id, name from colors natural join color_properties p order by p.sort_pos limit 10"
 -1,[Unknown]
 9999,"[No Color/Any Color]"
 15,White

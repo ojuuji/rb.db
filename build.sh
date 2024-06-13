@@ -21,7 +21,7 @@ done
 echo ":: sqlite version: $(sqlite3 -version | grep -Po '(\d+\.)+\d+') (exe), $(python -c 'import sqlite3; print(sqlite3.sqlite_version)') (python)"
 
 echo ":: applying schema ..."
-sqlite3 data/rb.db < schema/drop.sql
+rm -f data/rb.db
 sqlite3 data/rb.db < schema/tables.sql
 
 python build/import_rb_tables.py

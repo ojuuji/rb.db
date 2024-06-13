@@ -48,7 +48,7 @@ def gen_color_properties(conn):
     with conn, closing(conn.cursor()) as cur:
         pos = 0
         for color in sorted_colors:
-            cur.execute('INSERT INTO color_properties VALUES (?, ?)', (pos, color.id))
+            cur.execute('INSERT INTO color_properties VALUES (?, ?)', (color.id, pos))
             pos = pos + 1
 
 
