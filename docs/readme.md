@@ -15,6 +15,7 @@
   - [color_properties](#color_properties)
   - [similar_colors](#similar_colors)
   - [part_rels_resolved](#part_rels_resolved)
+  - [rb_db_lov](#rb_db_lov)
 
 {% include download.html %}
 
@@ -300,3 +301,14 @@ As a result of processing it lists so-called _"resolved"_ relationships, which a
   - as `parent_part_num` use part which either has greater last year, or the part that is referenced in more sets.
 
 This way to resolve any `A`/`M` relationship it is enough to perform single lookup in this table. I.e. for any relationship `X` and part `Y` there will be either zero or one row `X,Y,Z` and no rows starting with `X,Z,` where `X` is either `A` or `M`.
+
+## rb_db_lov
+
+Columns: `key`, `value`.
+
+This table contains the following list of values:
+
+key|value
+---|---
+`schema_version`|Version of the database schema. It is incremented with each schema modification, regardless of whether this modification is back compatible or not.
+`data_timestamp`|[UNIX timestamp](https://en.wikipedia.org/wiki/Unix_time) (in seconds) when the database was generated. New `rb.db` is released only when there is new data since the last release, so it is safe to assume that the databases with different `data_timestamp` values have different data.

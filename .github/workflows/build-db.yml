@@ -67,7 +67,10 @@ jobs:
         run: |
           set -xeu
           cd data
-          sqlite3 rb.db .dump | md5sum | cut -d\  -f1 > rb.dump.md5.new
+          sqlite3 rb.db .dump > rb.dump
+          REGEX="INSERT INTO rb_db_lov VALUES\('data_timestamp','\d+'\);"
+          grep -qEx "$REGEX" rb.dump
+          grep -vEx "$REGEX" rb.dump | md5sum | cut -d\  -f1 > rb.dump.md5.new
           SAME=1
           test -f rb.dump.md5 && diff rb.dump.md5{,.new} > /dev/null || SAME=0
           mv -f rb.dump.md5{.new,}
@@ -79,14 +82,15 @@ jobs:
           set -xeu
           cd data
           shasum -a256 rb.db > rb.db.sha256
-          xz rb.db
+          xz -k rb.db
 
       - name: create release
         if: ${{ steps.hash.outputs.same == '0' }}
         id: release
         run: |
           set -xeu
-          RELNAME="$(date +'%Y-%m-%d %H:%M')"
+          TS="$(sqlite data/rb.db "SELECT value FROM rb_db_lov WHERE key = 'data_timestamp'")"
+          RELNAME="$(date -d"@$TS" --utc +'%Y-%m-%d %H:%M')"
           echo "relname=${RELNAME}" >> $GITHUB_OUTPUT
           TAGNAME="${RELNAME//[ :]/-}"
           gh release create "$TAGNAME" --target master --title "$RELNAME" data/rb.db.*

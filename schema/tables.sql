@@ -138,3 +138,11 @@ CREATE TABLE part_rels_resolved(
   child_part_num TEXT NOT NULL REFERENCES parts(part_num),
   parent_part_num TEXT NOT NULL REFERENCES parts(part_num)
 ) STRICT;
+
+CREATE TABLE rb_db_lov(
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+) STRICT;
+
+INSERT INTO rb_db_lov VALUES('schema_version', '1');
+INSERT INTO rb_db_lov VALUES('data_timestamp', strftime('%s', 'now'));
