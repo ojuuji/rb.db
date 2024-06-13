@@ -69,8 +69,8 @@ jobs:
           cd data
           sqlite3 rb.db .dump > rb.dump
           REGEX="INSERT INTO rb_db_lov VALUES\('data_timestamp','\d+'\);"
-          grep -qEx "$REGEX" rb.dump
-          grep -vEx "$REGEX" rb.dump | md5sum | cut -d\  -f1 > rb.dump.md5.new
+          grep -qPx "$REGEX" rb.dump
+          grep -vPx "$REGEX" rb.dump | md5sum | cut -d\  -f1 > rb.dump.md5.new
           SAME=1
           test -f rb.dump.md5 && diff rb.dump.md5{,.new} > /dev/null || SAME=0
           mv -f rb.dump.md5{.new,}
