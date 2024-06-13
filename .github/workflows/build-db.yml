@@ -89,7 +89,7 @@ jobs:
         id: release
         run: |
           set -xeu
-          TS="$(sqlite data/rb.db "SELECT value FROM rb_db_lov WHERE key = 'data_timestamp'")"
+          TS="$(sqlite3 data/rb.db "SELECT value FROM rb_db_lov WHERE key = 'data_timestamp'")"
           RELNAME="$(date -d"@$TS" --utc +'%Y-%m-%d %H:%M')"
           echo "relname=${RELNAME}" >> $GITHUB_OUTPUT
           TAGNAME="${RELNAME//[ :]/-}"
