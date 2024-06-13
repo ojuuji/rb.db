@@ -20,8 +20,8 @@
 <body>
 <div id="chart"></div>
 <script>
-	const data = {{rows}};
-	const rows = data.map(([delta_e, rgb1, rgb2]) => {
+	const data = {{deltas}};
+	const rendered = data.map(([delta_e, rgb1, rgb2]) => {
 		return `
 <div>
 	<div class="delta">${delta_e}</div>
@@ -29,6 +29,6 @@
 	<div class="color" style="background:#${rgb2}">${rgb2}</div>
 </div>`;
 	}).join('');
-	document.getElementById('chart').innerHTML = rows;
+	document.getElementById('chart').innerHTML = rendered;
 </script>
 </body>
