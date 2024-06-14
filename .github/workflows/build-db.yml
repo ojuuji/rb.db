@@ -124,7 +124,8 @@ jobs:
             --method POST \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/ojuuji/rbmerge/actions/workflows/93216836/dispatches
+            /repos/ojuuji/rbmerge/actions/workflows/93216836/dispatches \
+            -f "ref=master"
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
