@@ -1,0 +1,66 @@
+# Format:
+# <rel_type><sep><child_part_num_regex><sep><parent_part_num_repl>
+# where <sep> is any character not appearing elsewhere on the line.
+# Relationship is applied only if regex matches an entire part number.
+# <parent_part_num_repl> may contain back references (\1, \2, ...).
+# For every part number rules are processed from the top to bottom. Processing
+# stops after first match. Extra part number then also processed the same way.
+
+# General rule for prints
+P,(.+)pr\d+[a-z]*,\1
+
+# General rule for patterns
+T,(.+)pats?\d+(c01)?,\1
+
+# General rules for minifigs
+T,973[c-h].+,973c00
+A,973b.+,973c00
+T,970[cdl].+,970c00
+A,970e.+,970c00
+
+# Mindstorms/SPIKE hub and battery
+A,55422,67704
+A,45601,67718
+
+# To Brick 1 x 1:
+# - Technic Brick 1 x 1 with Axle Hole
+A,73230,3005
+# - Technic Brick 1 x 1 with Pin Hole
+A,6541,3005
+
+# To Brick 1 x 2:
+# - Technic Brick 1 x 2 [2 Pin Holes]
+A,32000,3004
+# - Technic Brick 1 x 2 with Axle Hole
+A,32064a,3004
+# - Technic Brick 1 x 2 [1 Pin Hole]
+A,3700,3004
+# - Brick Special 1 x 2 with Grill
+A,2877,3004
+# - Brick Special 1 x 2 Palisade [aka Log]
+A,30136,3004
+# - Brick Special 1 x 2 with Groove
+A,4216,3004
+# - Brick Special 1 x 2 with Masonry Brick Profile
+A,98283,3004
+
+# To Brick 1 x 4:
+# - Technic Brick 1 x 4 [3 Pin Holes]
+A,3701,3010
+# - Brick Special 1 x 4 with Masonry Brick Profile
+A,15533,3010
+# - Brick Special 1 x 4 with Groove
+A,2653,3010
+# - Brick Special 1 x 4 Palisade [aka Log]
+A,30137,3010
+
+# Technic Brick 1 x 6 [5 Pin Holes] to Brick 1 x 4
+A,3894,3009
+# Technic Brick 1 x 8 [7 Pin Holes] to Brick 1 x 8
+A,3702,3008
+# Technic Brick 1 x 10 [9 Pin Holes] to Brick 1 x 10
+A,2730,6111
+# Technic Brick 1 x 12 [11 Pin Holes] to Brick 1 x 12
+A,3895,6112
+# Technic Brick 1 x 16 [15 Pin Holes] to Brick 1 x 16
+A,3703,2465

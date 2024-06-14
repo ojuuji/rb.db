@@ -32,6 +32,7 @@ sqlite3 data/rb.db < schema/indexes_rb.sql
 python build/gen_color_properties.py
 python build/gen_similar_color_ids.py
 python build/gen_part_rels_resolved.py
+python build/gen_part_rels_extra.py
 
 echo ":: creating indexes on custom tables ..."
 sqlite3 data/rb.db < schema/indexes_custom.sql

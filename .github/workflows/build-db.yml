@@ -23,19 +23,19 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: check out the repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: setup python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
           cache: pip
 
-      - name: install python dependencies
+      - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: create cache key for rb tables
+      - name: Create cache key for RB tables
         id: cachekey
         run: |
           set -xeu
@@ -47,22 +47,22 @@ jobs:
             || date --utc "+%Y%m%d%H")"
           echo "key=${KEY}" >> $GITHUB_OUTPUT
 
-      - name: set up cache for rb tables
+      - name: Set up cache for RB tables
         uses: actions/cache@v4
         with:
           path: data/*.csv
           key: ${{ steps.cachekey.outputs.key }}
 
-      - name: build database
+      - name: Build database
         run: bash -x build.sh && ls -l data
 
-      - name: cache dump hash
+      - name: Cache database dump hash
         uses: actions/cache@v4
         with:
           path: data/rb.dump.md5
           key: SQL Dump Hash
 
-      - name: compare dump hashes
+      - name: Compare database dump hashes
         id: hash
         run: |
           set -xeu
@@ -76,7 +76,7 @@ jobs:
           mv -f rb.dump.md5{.new,}
           echo "same=${SAME}" >> $GITHUB_OUTPUT
 
-      - name: prepare release files
+      - name: Prepare release files
         if: ${{ steps.hash.outputs.same == '0' }}
         run: |
           set -xeu
@@ -84,7 +84,7 @@ jobs:
           shasum -a256 rb.db > rb.db.sha256
           xz -k rb.db
 
-      - name: create release
+      - name: Create release
         if: ${{ steps.hash.outputs.same == '0' }}
         id: release
         run: |
@@ -97,7 +97,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
-      - name: update latest
+      - name: Update latest release
         if: ${{ steps.hash.outputs.same == '0' }}
         run: |
           set -xeu
@@ -109,7 +109,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
-      - name: deploy site
+      - name: Deploy site
         if: ${{ steps.hash.outputs.same == '0' }}
         run: |
           set -xeu
@@ -118,13 +118,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
-      - name: prune old releases
+      - name: Prune old releases
         if: ${{ steps.hash.outputs.same == '0' }}
         run: ./utils/prune_old_releases.sh
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
-      - name: prune old caches
+      - name: Prune old caches
         run: |
           set -xeu
           NKEEP=5

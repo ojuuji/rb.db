@@ -15,6 +15,7 @@
   - [color_properties](#color_properties)
   - [similar_colors](#similar_colors)
   - [part_rels_resolved](#part_rels_resolved)
+  - [part_rels_extra](#part_rels_extra)
   - [rb_db_lov](#rb_db_lov)
 
 {% include download.html %}
@@ -301,6 +302,44 @@ As a result of processing it lists so-called _"resolved"_ relationships, which a
   - as `parent_part_num` use part which either has greater last year, or the part that is referenced in more sets.
 
 This way to resolve any `A`/`M` relationship it is enough to perform single lookup in this table. I.e. for any relationship `X` and part `Y` there will be either zero or one row `X,Y,Z` and no rows starting with `X,Z,` where `X` is either `A` or `M`.
+
+## part_rels_extra
+
+Columns: `rel_type`, `child_part_num`, `parent_part_num`.
+
+This table defines extra relationships, not available on Rebrickable and maintained within `rb.db`.
+
+Rebrickable does not introduce fictive parts as "common denominators" for other parts. For example, [`35074pr0003`](https://rebrickable.com/parts/35074pr0003/) and [`35074pr0009`](https://rebrickable.com/parts/35074pr0009/) are clearly prints of the same part but unprinted part `35074` does not exist and thus is not listed in Rebrickable tables.
+
+It is interesting that such parts actually exist on the site to some extent. For example, although [`35074`](https://rebrickable.com/parts/35074/) results in _"404 Page Not Found"_, this part is listed as print of [`35074pr0003`](https://rebrickable.com/parts/35074pr0003/) with _"INACTIVE"_ word, appended to its name, and with a note that _"This part is disabled and cannot be used."_.
+
+There are exceptions though. For example, part [`973c00`](https://rebrickable.com/parts/973c00/) does not seem to exist and is only used as a related part for other parts.
+
+So basically `part_rels_extra` table contains relationships, made using "common denominator" parts described above, and several extra alternates.
+
+Content of this table is generated using the rules defined in [`part_rels_extra_rules.txt`]({{ site.github.repository_url }}/blob/master/build/part_rels_extra_rules.txt). See description in this file for details.
+
+Relationships involving "common denominator" parts there can be summarized the following way:
+
+- for every print there will be non-printed part. For example, part [35074pr0003](https://rebrickable.com/parts/35074pr0003/) results in a row `P,35074pr0003,35074` even if part `35074` does not exist
+- the same is done for patterns but _after_ prints are removed. For example, for part [`100662pat0001pr0002`](https://rebrickable.com/parts/100662pat0001pr0002/) there will be rows `P,100662pat0001pr0002,100662pat0001` and `T,100662pat0001,100662` but not `P,100662pat0001pr0002,100662pr0002`. Also note that in the pattern row both parts do not actually exist
+- minifig torsos and legs, after prints and patterns are removed, are additionally linked as alternates to `973c00` and `970c00` when reasonable.
+
+When building this table, relationship is not added if it already exists in [`part_rels_resolved`](#part_rels_resolved) (for `rel_type` values `A`, `M`) or in [`part_relationships`](#part_relationships) (for the rest of `rel_type` values).
+
+So `part_rels_extra` table complements both these tables. In other words, this union does not have duplicate rows:
+```
+SELECT *
+  FROM part_relationships
+ WHERE rel_type NOT IN ('A', 'M')
+ UNION
+SELECT *
+  FROM part_rels_resolved
+ WHERE rel_type IN ('A', 'M')
+ UNION
+SELECT *
+  FROM part_rels_extra
+```
 
 ## rb_db_lov
 

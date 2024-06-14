@@ -139,10 +139,16 @@ CREATE TABLE part_rels_resolved(
   parent_part_num TEXT NOT NULL REFERENCES parts(part_num)
 ) STRICT;
 
+CREATE TABLE part_rels_extra(
+  rel_type TEXT NOT NULL CHECK(rel_type IN ('A', 'B', 'M', 'P', 'R', 'T')),
+  child_part_num TEXT NOT NULL,  -- no foreign key constraints as they may
+  parent_part_num TEXT NOT NULL  -- actually not reference actual part number
+) STRICT;
+
 CREATE TABLE rb_db_lov(
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
 ) STRICT;
 
-INSERT INTO rb_db_lov VALUES('schema_version', '2');
+INSERT INTO rb_db_lov VALUES('schema_version', '3');
 INSERT INTO rb_db_lov VALUES('data_timestamp', strftime('%s', 'now'));
