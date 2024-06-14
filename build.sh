@@ -20,14 +20,18 @@ done
 
 echo ":: sqlite version: $(sqlite3 -version | grep -Po '(\d+\.)+\d+') (exe), $(python -c 'import sqlite3; print(sqlite3.sqlite_version)') (python)"
 
-echo ":: applying schema ..."
+echo ":: creating rb tables ..."
+
 rm -f data/rb.db
-sqlite3 data/rb.db < schema/tables.sql
+sqlite3 data/rb.db < schema/rb_tables.sql
 
 python build/import_rb_tables.py
 
 echo ":: creating indexes on rb tables ..."
-sqlite3 data/rb.db < schema/indexes_rb.sql
+sqlite3 data/rb.db < schema/rb_indexes.sql
+
+echo ":: creating custom tables ..."
+sqlite3 data/rb.db < schema/custom_tables.sql
 
 python build/gen_color_properties.py
 python build/gen_similar_color_ids.py
@@ -35,6 +39,6 @@ python build/gen_part_rels_resolved.py
 python build/gen_part_rels_extra.py
 
 echo ":: creating indexes on custom tables ..."
-sqlite3 data/rb.db < schema/indexes_custom.sql
+sqlite3 data/rb.db < schema/custom_indexes.sql
 
 echo ":: done"
