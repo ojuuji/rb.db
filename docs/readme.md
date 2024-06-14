@@ -1,5 +1,6 @@
 
 - [Database Schema](#database-schema)
+  - [Diagram](#diagram)
 - [Rebrickable Tables](#rebrickable-tables)
   - [colors](#colors)
   - [themes](#themes)
@@ -51,6 +52,10 @@ Original Rebrickable tables are provided in CSV format. SQLite [can import](http
 For example, [`themes.parent_id`](#themes) foreign key constraint would fail at all with an empty string, because it expects either an existing `themes.id` value or `NULL`.
 
 This is why the import scripts import tables directly instead of relying on `.import` SQLite command.
+
+## Diagram
+
+![Database diagram](schema.svg)
 
 # Rebrickable Tables
 

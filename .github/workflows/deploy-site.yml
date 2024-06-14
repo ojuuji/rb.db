@@ -20,49 +20,55 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: check out the repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: setup python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
           cache: pip
 
-      - name: install python dependencies
+      - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: get the latest database
+      - name: Get the latest database
         run: gh release download latest --pattern "*.xz" -D data && xz -d data/rb.db.xz
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: generate delta_e_chart.html
+      - name: Generate delta_e_chart.html
         run: python utils/delta_e_chart.py > docs/delta_e_chart.html
 
-      - name: inject release info
+      - name: Generate diagram
+        run: |
+          sudo apt install graphviz graphviz-dev
+          pip install eralchemy2
+          eralchemy2 -i sqlite:///data/rb.db -o docs/schema.svg
+
+      - name: Inject release info
         run: bash -x utils/inject_release_info.sh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: setup pages
+      - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: build with jekyll
+      - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./docs/
 
       # after jekyll-build-pages '_site' directory is owned by root:root
-      - name: fix permissions for artifact directory
+      - name: Fix permissions for artifact directory
         run: sudo chown -R runner:docker _site
   
       # plugin 'jekyll-target-blank' would help but GitHub Pages use a whitelist
       # for plugins and that one is not in it
-      - name: fix external links
+      - name: Fix external links
         run: find _site -name '*.html' | xargs sed -i 's|<a href="https://|<a target="_blank" href="https://|g'
 
-      - name: upload artifact
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
   deploy:
@@ -72,6 +78,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: deploy to github pages
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
