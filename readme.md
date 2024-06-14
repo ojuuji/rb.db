@@ -1,4 +1,4 @@
-![build status](actions/workflows/build-db.yml/badge.svg)
+![build status](https://github.com/ojuuji/rb.db/actions/workflows/build-db.yml/badge.svg)
 
 To build `rb.db` locally, clone the repository and run `build.sh` script. To import only Rebrickable tables in `rb.db` run `build.sh -rbonly`.
 

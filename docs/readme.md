@@ -323,7 +323,7 @@ Relationships involving "common denominator" parts there can be summarized the f
 
 - for every print there will be non-printed part. For example, part [35074pr0003](https://rebrickable.com/parts/35074pr0003/) results in a row `P,35074pr0003,35074` even if part `35074` does not exist
 - the same is done for patterns but _after_ prints are removed. For example, for part [`100662pat0001pr0002`](https://rebrickable.com/parts/100662pat0001pr0002/) there will be rows `P,100662pat0001pr0002,100662pat0001` and `T,100662pat0001,100662` but not `P,100662pat0001pr0002,100662pr0002`. Also note that in the pattern row both parts do not actually exist
-- minifig torsos and legs, after prints and patterns are removed, are additionally linked as alternates to `973c00` and `970c00` when reasonable.
+- minifig torsos and legs, after prints and patterns are removed, are additionally listed as alternates to `973c00` and `970c00` when reasonable.
 
 When building this table, relationship is not added if it already exists in [`part_rels_resolved`](#part_rels_resolved) (for `rel_type` values `A`, `M`) or in [`part_relationships`](#part_relationships) (for the rest of `rel_type` values).
 
