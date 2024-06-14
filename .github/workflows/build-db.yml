@@ -118,6 +118,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT }}
 
+      - name: Trigger RBmerge build
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/ojuuji/rbmerge/actions/workflows/93216836/dispatches
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+
       - name: Prune old releases
         if: ${{ steps.hash.outputs.same == '0' }}
         run: ./utils/prune_old_releases.sh
