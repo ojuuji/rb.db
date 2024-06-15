@@ -37,10 +37,9 @@ For Rebrickable tables the main rule is to import them as-is, without adding/rem
 - value constraints (from `NOT NULL` to more specific whenever possible)
 - rigid typing via SQLite [STRICT tables](https://www.sqlite.org/stricttables.html)
 
-CSV format, in which original Rebrickable tables are provided, does not include types information for the stored data. Therefore column data types, used by the schema, are determined basing on the column content and SQLite3 specifics:
-- use only `INTEGER` and `TEXT` to avoid possible confusion, as the data types like `VARCHAR(N)` do not really imply any constraints in SQLite ([docs](https://www.sqlite.org/datatype3.html))
-- rigid typing allows only a few data types, so the previous point was (fortunately) not much of a choice
-- use `INTEGER` values `0` and `1` for boolean columns. Original tables store single `t`/`f` characters (_"true"_/_"false"_) but in context of the schema `0`/`1` are more appropriate as they allow to use natural conditions like `WHERE is_trans`/`WHERE NOT(is_trans)` instead of `WHERE is_trans = 't'`/`WHERE is_trans = 'f'`
+CSV format, in which original Rebrickable tables are provided, cannot include types information for the stored data. Therefore column data types, used by the schema, are determined basing on the column content and SQLite3 specifics:
+- use only `INTEGER` and `TEXT` to avoid possible confusion, as the data types like `VARCHAR(N)` do not really imply any constraints in SQLite ([docs](https://www.sqlite.org/datatype3.html)). Rigid typing allows only a few data types, so this was (fortunately) not much of a choice
+- use `INTEGER` values `0` and `1` for boolean columns. Original tables store single `t`/`f` characters (_"true"_/_"false"_) but in context of the schema `0`/`1` are more appropriate as they allow to use natural conditions like `WHERE is_trans`/`WHERE NOT(is_trans)`
 - use `INTEGER` for columns containing id, year, quantity. The rest of columns are clearly text so it was not a hard guess
 - CSV has no concept of `NULL` values whereas all missing values in the Rebrickable tables semantically mean `NULL` and thus are imported this way in `rb.db`
 
@@ -48,13 +47,13 @@ Schema of the [Rebrickable Tables](#rebrickable-tables) is described in the sect
 
 Almost all columns in Rebrickable tables cannot be `NULL`. Thus this is not mentioned in the columns description, and only for nullable columns there will be explicit note about this.
 
-#### Note about import from CSV in SQLite3
+#### Note about CSV import in SQLite3
 
 Original Rebrickable tables are provided in CSV format. SQLite [can import](https://sqlite.org/cli.html#importing_files_as_csv_or_other_formats) tables from CSV files directly. However it unconditionally treats empty values as empty strings ([details](https://sqlite.org/forum/forumpost/9da85fe4fc6760c4)) whereas in context of Rebrickable tables these values have to become `NULL` in database.
 
 For example, [`themes.parent_id`](#themes) foreign key constraint would fail at all with an empty string, because it expects either an existing `themes.id` value or `NULL`.
 
-This is why the import scripts import tables directly instead of relying on `.import` SQLite command.
+This is why the import scripts import tables directly instead of relying on `.import` SQLite3 command.
 
 ## Diagram
 
@@ -65,6 +64,13 @@ This is why the import scripts import tables directly instead of relying on `.im
 ## colors
 
 This table contains the [part colors](https://rebrickable.com/colors/).
+
+Column|Type|Constraints|Description
+---|---|---|---
+`id`|integer|primary key|A number, unique for each color. In other tables colors are referenced by this number.
+`name`|text||The color name on Rebrickable.
+`rgb`|text|6 hex digits|RGB color in a form of [HEX triplet](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet), , no prefix.
+`is_trans`|integer|0 or 1|Boolean flag indicating if color is transparent.
 
 Columns: `id` (integer, primary key), `name` (text), `rgb` (text), `is_trans` (integer, 0/1).
 
@@ -87,6 +93,12 @@ $ sqlite3 rb.db "select * from colors group by is_trans"
 ## themes
 
 This table contains the [sets themes](https://rebrickable.com/help/set-themes/).
+
+Column|Type|Constraints|Description
+---|---|---|---
+`id`|integer|primary key|A number, unique for each theme. In other tables, and even in the same table in `parent_id` column, themes are referenced by this number.
+`name`|text||The theme name on Rebrickable.
+`parent_id`|integer|nullable|The parent theme id for sub-themes and `NULL` otherwise.
 
 Columns: `id` (integer, primary key), `name` (text), `parent_id` (integer, nullable).
 
