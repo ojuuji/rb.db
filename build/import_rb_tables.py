@@ -4,12 +4,21 @@ import csv
 import sys
 
 
+def preprocess_value(key, value):
+    if key.startswith('is_'):
+        if value in 'tf':
+            return 1 if value == 't' else 0
+        raise ValueError(f"unexpected value ('{value}') for key '{key}'")
+
+    return None if value == '' else value
+
+
 def read_table(name):
     with open(f'{WORKDIR}/../data/{name}.csv', 'r', encoding='utf-8') as f:
         cf = csv.DictReader(f)
         rows = []
         for row in cf:
-            rows.append({k: None if v == '' else v for k, v in row.items()})
+            rows.append({k: preprocess_value(k, v) for k, v in row.items()})
 
         return rows
 

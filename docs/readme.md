@@ -32,20 +32,23 @@ Retention policy:
 
 # Database Schema
 
-For Rebrickable tables the main rule is to import them as-is, without adding/removing/modifying any table/column names or data. Schema only enforces several constraints to ensure the database integrity and the relevance of this documentation:
+For Rebrickable tables the main rule is to import them as-is, without adding/removing/modifying any table/column names or data (except for the purpose of data types conversion). Schema only enforces several constraints to ensure the database integrity and the relevance of this documentation:
 - foreign key constraints for all columns which reference other tables
 - value constraints (from `NOT NULL` to more specific whenever possible)
 - rigid typing via SQLite [STRICT tables](https://www.sqlite.org/stricttables.html)
 
-As to data types, schema uses only INTEGER and TEXT because of the following reasons:
-- to avoid possible confusion, as the data types like `VARCHAR(N)` do not really imply any constraints in SQLite ([docs](https://www.sqlite.org/datatype3.html))
-- rigid typing allows only a few data types, so it was (fortunately) not much of a choice
+CSV format, in which original Rebrickable tables are provided, does not include types information for the stored data. Therefore column data types, used by the schema, are determined basing on the column content and SQLite3 specifics:
+- use only `INTEGER` and `TEXT` to avoid possible confusion, as the data types like `VARCHAR(N)` do not really imply any constraints in SQLite ([docs](https://www.sqlite.org/datatype3.html))
+- rigid typing allows only a few data types, so the previous point was (fortunately) not much of a choice
+- use `INTEGER` values `0` and `1` for boolean columns. Original tables store single `t`/`f` characters (_"true"_/_"false"_) but in context of the schema `0`/`1` are more appropriate as they allow to use natural conditions like `WHERE is_trans`/`WHERE NOT(is_trans)` instead of `WHERE is_trans = 't'`/`WHERE is_trans = 'f'`
+- use `INTEGER` for columns containing id, year, quantity. The rest of columns are clearly text so it was not a hard guess
+- CSV has no concept of `NULL` values whereas all missing values in the Rebrickable tables semantically mean `NULL` and thus are imported this way in `rb.db`
 
 Schema of the [Rebrickable Tables](#rebrickable-tables) is described in the section of the same name. In addition to Rebrickable tables `rb.db` includes few custom tables, non-trivially generated from them. They are described in [Custom Tables](#custom-tables) section.
 
 Almost all columns in Rebrickable tables cannot be `NULL`. Thus this is not mentioned in the columns description, and only for nullable columns there will be explicit note about this.
 
-#### Note about import from CSV
+#### Note about import from CSV in SQLite3
 
 Original Rebrickable tables are provided in CSV format. SQLite [can import](https://sqlite.org/cli.html#importing_files_as_csv_or_other_formats) tables from CSV files directly. However it unconditionally treats empty values as empty strings ([details](https://sqlite.org/forum/forumpost/9da85fe4fc6760c4)) whereas in context of Rebrickable tables these values have to become `NULL` in database.
 
@@ -61,7 +64,7 @@ This is why the import scripts import tables directly instead of relying on `.im
 
 ## colors
 
-This table contains the [part colors](https://rebrickable.com/help/colors/).
+This table contains the [part colors](https://rebrickable.com/colors/).
 
 Columns: `id` (primary key), `name`, `rgb`, `is_trans`.
 
@@ -71,14 +74,14 @@ Columns: `id` (primary key), `name`, `rgb`, `is_trans`.
 
 `rgb` is RGB color in a form of [HEX triplet](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet), 6 hexadecimal digits, no prefix.
 
-`is_trans` is a flag indicating if color is transparent. Possible values: `t` ("true") for transparent colors and `f` ("false") otherwise.
+`is_trans` is a `0`/`1` flag indicating if color is transparent.
 
 Example:
 
 ```
 $ sqlite3 rb.db "select * from colors group by is_trans"
--1|[Unknown]|0033B2|f
-32|Trans-Black IR Lens|635F52|t
+-1|[Unknown]|0033B2|0
+32|Trans-Black IR Lens|635F52|1
 ```
 
 ## themes

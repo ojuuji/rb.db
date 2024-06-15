@@ -38,5 +38,5 @@ CREATE TABLE rb_db_lov(
   value TEXT NOT NULL
 ) STRICT;
 
-INSERT INTO rb_db_lov VALUES('schema_version', '3');
+INSERT INTO rb_db_lov VALUES('schema_version', '4');
 INSERT INTO rb_db_lov VALUES('data_timestamp', strftime('%s', 'now'));

@@ -9,7 +9,7 @@ CREATE TABLE colors(
   name TEXT NOT NULL,
   -- rgb consists of six hex digits
   rgb TEXT NOT NULL CHECK(length(rgb) == 6 AND NOT rgb GLOB '*[^0-9A-Fa-f]*'),
-  is_trans TEXT NOT NULL CHECK(is_trans IN ('f', 't'))
+  is_trans INTEGER NOT NULL CHECK(is_trans IN (0, 1))
 ) STRICT;
 
 CREATE TABLE themes(
@@ -78,7 +78,7 @@ CREATE TABLE inventory_parts(
   part_num TEXT NOT NULL REFERENCES parts(part_num),
   color_id INTEGER NOT NULL REFERENCES colors(id),
   quantity INTEGER NOT NULL,
-  is_spare TEXT NOT NULL CHECK(is_spare IN ('f', 't')),
+  is_spare INTEGER NOT NULL CHECK(is_spare IN (0, 1)),
   img_url TEXT CHECK(instr(img_url, 'https://cdn.rebrickable.com/media/parts/') == 1)
 ) STRICT;
 
