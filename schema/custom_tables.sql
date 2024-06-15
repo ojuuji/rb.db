@@ -7,7 +7,7 @@ CREATE TABLE color_properties(
 ) STRICT;
 
 CREATE TABLE similar_color_ids(
-  ref_id INTEGER PRIMARY KEY REFERENCES colors(id),
+  ref_id INTEGER NOT NULL REFERENCES colors(id),
   id INTEGER NOT NULL REFERENCES colors(id)
 ) STRICT;
 

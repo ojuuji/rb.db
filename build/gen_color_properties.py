@@ -22,7 +22,7 @@ class Color:
         if self.name == other.name:
             return False
 
-        for color in Color.HARDCODED_ORDER:
+        for color in HARDCODED_ORDER:
             if self.name == color:
                 return True
             if other.name == color:
