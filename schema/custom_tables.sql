@@ -2,11 +2,12 @@
 
 CREATE TABLE color_properties(
   id INTEGER PRIMARY KEY REFERENCES colors(id),
-  sort_pos INTEGER NOT NULL
+  sort_pos INTEGER NOT NULL,
+  is_grayscale INTEGER CHECK(is_grayscale IN (0, 1))
 ) STRICT;
 
 CREATE TABLE similar_color_ids(
-  ref_id INTEGER NOT NULL REFERENCES colors(id),
+  ref_id INTEGER PRIMARY KEY REFERENCES colors(id),
   id INTEGER NOT NULL REFERENCES colors(id)
 ) STRICT;
 
@@ -38,5 +39,5 @@ CREATE TABLE rb_db_lov(
   value TEXT NOT NULL
 ) STRICT;
 
-INSERT INTO rb_db_lov VALUES('schema_version', '4');
+INSERT INTO rb_db_lov VALUES('schema_version', '5');
 INSERT INTO rb_db_lov VALUES('data_timestamp', strftime('%s', 'now'));

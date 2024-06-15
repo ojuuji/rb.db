@@ -66,7 +66,7 @@ This is why the import scripts import tables directly instead of relying on `.im
 
 This table contains the [part colors](https://rebrickable.com/colors/).
 
-Columns: `id` (primary key), `name`, `rgb`, `is_trans`.
+Columns: `id` (integer, primary key), `name` (text), `rgb` (text), `is_trans` (integer, 0/1).
 
 `id` is a number, unique for each color. In other tables colors are referenced by this number.
 
@@ -88,7 +88,7 @@ $ sqlite3 rb.db "select * from colors group by is_trans"
 
 This table contains the [sets themes](https://rebrickable.com/help/set-themes/).
 
-Columns: `id` (primary key), `name`, `parent_id` (nullable).
+Columns: `id` (integer, primary key), `name` (text), `parent_id` (integer, nullable).
 
 `id` is a number, unique for each theme. In other tables, and even in the same table in `parent_id` column, themes are referenced by this number.
 
@@ -108,7 +108,7 @@ $ sqlite3 -nullvalue NULL rb.db "select * from themes where 52 in (id, parent_id
 
 ## parts
 
-Columns: `part_num` (primary key), `name`, `part_cat_id`, `part_material`.
+Columns: `part_num` (text, primary key), `name` (text), `part_cat_id` (integer), `part_material` (text).
 
 `part_num` is alpha-numeric part number uniquely identifying each part on Rebrickable. In other tables parts are referenced by this part number.
 
@@ -133,7 +133,7 @@ Rubber
 
 ## part_relationships
 
-Columns: `rel_type`, `child_part_num`, `parent_part_num`.
+Columns: `rel_type` (text), `child_part_num` (text), `parent_part_num` (text).
 
 Each row defines single relationship between two parts `child_part_num` and `parent_part_num`, which both are references (foreign keys) to [`parts.part_num`](#parts) column.
 
@@ -216,11 +216,13 @@ These tables are non-trivially generated, i.e. their data cannot be obtained usi
 
 ## color_properties
 
-Columns: `id` (primary key), `sort_pos`.
+Columns: `id` (integer, primary key), `sort_pos` (integer), `is_grayscale` (integer, 0/1, nullable).
 
 `id` is a reference (foreign key) to [`colors.id`](#colors) column.
 
 `sort_pos` is a color position in a sorted list of colors. It is designed to help sorting parts by color.
+
+`is_grayscale` is a flag indicating if color is considered as grayscale. In the following list it is set to `1` for points #3, #4, #5, to `0` for point #6, and to `NULL` for points #1, #2.
 
 With the `sort_pos` colors are ordered the following way:
 1. `[Unknown]`
@@ -249,7 +251,7 @@ $ sqlite3 -csv rb.db "select id, name from colors natural join color_properties 
 
 ## similar_colors
 
-Columns: `ref_id`, `ref_name`, `id`, `name`, `rgb`, `is_trans`.
+Columns: `ref_id` (integer, primary key), `ref_name` (text), `id` (integer), `name` (text), `rgb` (text), `is_trans` (integer, 0/1).
 
 This table lists similar colors for every color. It is inspired by Rebrickable build matching option _"Part color sensitivity" → "Parts that have similar colors will be matched."_ though results may be different.
 
@@ -295,7 +297,7 @@ Sienna Brown
 
 ## part_rels_resolved
 
-Columns: `rel_type`, `child_part_num`, `parent_part_num`.
+Columns: `rel_type` (text), `child_part_num` (text), `parent_part_num` (text).
 
 This is a processed [`part_relationships`](#part_relationships) table with the same set of columns (see columns description there).
 
@@ -313,7 +315,7 @@ This way to resolve any `A`/`M` relationship it is enough to perform single look
 
 ## part_rels_extra
 
-Columns: `rel_type`, `child_part_num`, `parent_part_num`.
+Columns: `rel_type` (text), `child_part_num` (text), `parent_part_num` (text).
 
 This table defines extra relationships, not available on Rebrickable and maintained within `rb.db`.
 
@@ -351,7 +353,7 @@ SELECT *
 
 ## rb_db_lov
 
-Columns: `key`, `value`.
+Columns: `key` (text), `value` (text).
 
 This table contains the following list of values:
 
