@@ -4,6 +4,7 @@
 - [Rebrickable Tables](#rebrickable-tables)
   - [colors](#colors)
   - [themes](#themes)
+  - [part_categories](#part_categories)
   - [parts](#parts)
   - [part_relationships](#part_relationships)
     - [`A` - Alternate](#a---alternate)
@@ -65,20 +66,11 @@ This is why the import scripts import tables directly instead of relying on `.im
 
 This table contains the [part colors](https://rebrickable.com/colors/).
 
-Column|Type|Constraints|Description
----|---|---|---
-`id`|integer|primary key|A number, unique for each color. In other tables colors are referenced by this number.
-`name`|text||The color name on Rebrickable.
-`rgb`|text|6 hex digits|RGB color in a form of [HEX triplet](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet), , no prefix.
-`is_trans`|integer|0 or 1|Boolean flag indicating if color is transparent.
-
-Columns: `id` (integer, primary key), `name` (text), `rgb` (text), `is_trans` (integer, 0/1).
-
-`id` is a number, unique for each color. In other tables colors are referenced by this number.
+`id` is a number, unique for each color. Referenced by [`inventory_parts.color_id`](#inventory_parts), [`elements.color_id`](#elements), [`color_properties.id`](#color_properties), [`similar_color_ids.ref_id`](#similar_colors), [`similar_color_ids.id`](#similar_colors).
 
 `name` is the color name on Rebrickable.
 
-`rgb` is RGB color in a form of [HEX triplet](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet), 6 hexadecimal digits, no prefix.
+`rgb` is RGB color in a form of [HEX triplet](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet), 6 hexadecimal digits without prefix.
 
 `is_trans` is a `0`/`1` flag indicating if color is transparent.
 
@@ -94,15 +86,9 @@ $ sqlite3 rb.db "select * from colors group by is_trans"
 
 This table contains the [sets themes](https://rebrickable.com/help/set-themes/).
 
-Column|Type|Constraints|Description
----|---|---|---
-`id`|integer|primary key|A number, unique for each theme. In other tables, and even in the same table in `parent_id` column, themes are referenced by this number.
-`name`|text||The theme name on Rebrickable.
-`parent_id`|integer|nullable|The parent theme id for sub-themes and `NULL` otherwise.
-
 Columns: `id` (integer, primary key), `name` (text), `parent_id` (integer, nullable).
 
-`id` is a number, unique for each theme. In other tables, and even in the same table in `parent_id` column, themes are referenced by this number.
+`id` is a number, unique for each theme. Referenced by [`sets.theme_id`](#sets) and even by this table in `parent_id` column.
 
 `name` is the theme name on Rebrickable.
 
@@ -118,11 +104,19 @@ $ sqlite3 -nullvalue NULL rb.db "select * from themes where 52 in (id, parent_id
 53|Airport|52
 ```
 
+## part_categories
+
+Columns: `id` (integer, primary key), `name` (text).
+
+`id` is a number, unique for each category. Referenced by [`parts.part_cat_id`](#parts).
+
+`name` is the category name on Rebrickable.
+
 ## parts
 
 Columns: `part_num` (text, primary key), `name` (text), `part_cat_id` (integer), `part_material` (text).
 
-`part_num` is alpha-numeric part number uniquely identifying each part on Rebrickable. In other tables parts are referenced by this part number.
+`part_num` is alpha-numeric part number uniquely identifying each part on Rebrickable. Referenced by [`part_relationships.child_part_num`](#part_relationships),  [`part_relationships.parent_part_num`](#part_relationships), [`elements.part_num`](#elements), [`inventory_parts.part_num`](#inventory_parts). [`part_rels_resolved.child_part_num`](#part_relationships),  [`part_rels_resolved.parent_part_num`](#part_relationships).
 
 Although uncommon, part numbers may also contain a dot ([75c23.75](https://rebrickable.com/parts/75c23.75/)) and a hyphen ([134916-740](https://rebrickable.com/parts/134916-740/)).
 
