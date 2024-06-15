@@ -13,6 +13,13 @@
     - [`P` - Print](#p---print)
     - [`R` - Pair](#r---pair)
     - [`T` - Pattern](#t---pattern)
+  - [elements](#elements)
+  - [minifigs](#minifigs)
+  - [sets](#sets)
+  - [inventories](#inventories)
+  - [inventory_minifigs](#inventory_minifigs)
+  - [inventory_parts](#inventory_parts)
+  - [inventory_sets](#inventory_sets)
 - [Custom Tables](#custom-tables)
   - [color_properties](#color_properties)
   - [similar_colors](#similar_colors)
@@ -66,6 +73,8 @@ This is why the import scripts import tables directly instead of relying on `.im
 
 This table contains the [part colors](https://rebrickable.com/colors/).
 
+Columns: `id` (integer, primary key), `name` (text), `rgb` (text), `is_trans` (integer).
+
 `id` is a number, unique for each color. Referenced by [`inventory_parts.color_id`](#inventory_parts), [`elements.color_id`](#elements), [`color_properties.id`](#color_properties), [`similar_color_ids.ref_id`](#similar_colors), [`similar_color_ids.id`](#similar_colors).
 
 `name` is the color name on Rebrickable.
@@ -116,7 +125,7 @@ Columns: `id` (integer, primary key), `name` (text).
 
 Columns: `part_num` (text, primary key), `name` (text), `part_cat_id` (integer), `part_material` (text).
 
-`part_num` is alpha-numeric part number uniquely identifying each part on Rebrickable. Referenced by [`part_relationships.child_part_num`](#part_relationships),  [`part_relationships.parent_part_num`](#part_relationships), [`elements.part_num`](#elements), [`inventory_parts.part_num`](#inventory_parts). [`part_rels_resolved.child_part_num`](#part_relationships),  [`part_rels_resolved.parent_part_num`](#part_relationships).
+`part_num` is alpha-numeric part number uniquely identifying each part on Rebrickable. Referenced by [`part_relationships.child_part_num`](#part_relationships), [`part_relationships.parent_part_num`](#part_relationships), [`elements.part_num`](#elements), [`inventory_parts.part_num`](#inventory_parts), [`part_rels_resolved.child_part_num`](#part_relationships), [`part_rels_resolved.parent_part_num`](#part_relationships).
 
 Although uncommon, part numbers may also contain a dot ([75c23.75](https://rebrickable.com/parts/75c23.75/)) and a hyphen ([134916-740](https://rebrickable.com/parts/134916-740/)).
 
@@ -215,6 +224,34 @@ Example: `T,19858pat0002,19858`
 [19858pat0002](https://rebrickable.com/parts/19858pat0002/) is a pattern of [19858](https://rebrickable.com/parts/19858/).
 
 Rebrickable uses this relationship along with relationship `P` in the build matching option _"Ignore printed and patterned part differences."_
+
+## elements
+
+Columns: `element_id` (integer, primary key), `part_num` (text), `color_id` (integer), `design_id` (integer, nullable).
+
+## minifigs
+
+Columns: `fig_num` (text, primary key), `name` (text), `num_parts` (integer), `img_url` (text).
+
+## sets
+
+Columns: `set_num` (text, primary key), `name` (text), `year` (integer), `theme_id` (integer), `num_parts` (integer), `img_url` (text).
+
+## inventories
+
+Columns: `id` (integer, primary key), `version` (integer), `set_num` (text).
+
+## inventory_minifigs
+
+Columns: `inventory_id` (integer), `fig_num` (text), `quantity` (integer).
+
+## inventory_parts
+
+Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `quantity` (integer), `is_spare` (integer), `img_url` (text).
+
+## inventory_sets
+
+Columns: `inventory_id` (integer), `set_num` (text), `quantity` (integer).
 
 # Custom Tables
 
