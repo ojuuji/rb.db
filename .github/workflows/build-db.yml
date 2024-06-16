@@ -117,6 +117,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
 
       - name: Trigger RBmerge build
+        if: steps.hash.outputs.cache-hit != 'true'
         run: |
           gh api \
             --method POST \
@@ -134,6 +135,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
 
       - name: Prune old caches
+        if: steps.hash.outputs.cache-hit != 'true'
         run: |
           set -xeu
           NKEEP=5
