@@ -349,7 +349,7 @@ Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `qua
 
 As for now, this `img_url` is the only reliable way to get an image URL for a given `part_num`+`color_id`.
 
-For almost all parts their image URLs are the same across all inventories (probably to reduce bandwidth usage on Rebrickable).
+For [almost](multiple_image_urls.txt) all parts their image URLs are the same across all inventories (probably to reduce bandwidth usage on Rebrickable).
 
 ## inventory_sets
 
