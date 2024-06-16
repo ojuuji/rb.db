@@ -10,8 +10,8 @@ SELECT datetime(value, 'unixepoch') 'DB version'
   FROM rb_db_lov
  WHERE key = 'data_timestamp';
 
-SELECT DISTINCT part_num, color_id, img_url
-           FROM inventory_parts
+SELECT DISTINCT set_num, part_num, color_id, img_url
+           FROM inventory_parts ip
    NATURAL JOIN ( SELECT part_num, color_id
                     FROM ( SELECT *
                              FROM inventory_parts
@@ -19,5 +19,8 @@ SELECT DISTINCT part_num, color_id, img_url
                          ) x
                 GROUP BY 1, 2
                   HAVING count(*) > 1
-                ) y;
+                ) y
+           JOIN inventories i
+             ON i.id = ip.inventory_id
+       ORDER BY 2, 3, 1;
 EOF
