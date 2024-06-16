@@ -21,6 +21,7 @@
   - [inventory_minifigs](#inventory_minifigs)
   - [inventory_parts](#inventory_parts)
   - [inventory_sets](#inventory_sets)
+  - [set_nums](#set_nums)
 - [Custom Tables](#custom-tables)
   - [color_properties](#color_properties)
   - [similar_colors](#similar_colors)
@@ -44,6 +45,7 @@ Retention policy:
 For Rebrickable tables the main rule is to import them as-is, without adding/removing/modifying any table/column names or data (except for the purpose of data types conversion). Schema only enforces several constraints to ensure the database integrity and the relevance of this documentation:
 - foreign key constraints for all columns which reference other tables
 - value constraints (from `NOT NULL` to more specific whenever possible)
+- [`set_nums`](#set_nums) table to satisfy foreign key constraint for [`inventories.set_num`](#inventories)
 - rigid typing via SQLite [STRICT tables](https://www.sqlite.org/stricttables.html)
 
 CSV format, in which original Rebrickable tables are provided, cannot include types information for the stored data. Therefore column data types, used by the schema, are determined basing on the column content and SQLite3 specifics:
@@ -72,7 +74,7 @@ Current [schema version](#rb_db_lov) is `5`. List of changes:
 2. Renamed `color_properties.color_id` to [`color_properties.id`](#color_properties) as it is complementary table
 3. Added [`part_rels_extra`](#part_rels_extra) table
 4. Changed [`color.is_trans`](#color) and [`inventory_parts.is_spare`](#inventory_parts) types to `integer (0/1)`
-5. Added [`color_properties`](#color_properties)`.is_grayscale`
+5. Added [`color_properties.is_grayscale`](#color_properties)
 
 ## Diagram
 
@@ -86,7 +88,7 @@ This table contains the [part colors](https://rebrickable.com/colors/).
 
 Columns: `id` (integer, primary key), `name` (text), `rgb` (text), `is_trans` (integer).
 
-`id` is a number, unique for each color. Referenced by [`inventory_parts`](#inventory_parts)`.color_id`, [`elements.color_id`](#elements), [`color_properties.id`](#color_properties), [`similar_color_ids.ref_id`](#similar_colors), [`similar_color_ids.id`](#similar_colors).
+`id` is a number, unique for each color. Referenced by [`inventory_parts.color_id`](#inventory_parts), [`elements.color_id`](#elements), [`color_properties.id`](#color_properties), [`similar_color_ids.ref_id`](#similar_colors), [`similar_color_ids.id`](#similar_colors).
 
 `name` is the color name on Rebrickable.
 
@@ -142,7 +144,7 @@ Although uncommon, part numbers may also contain a dot ([75c23.75](https://rebri
 
 `name` is the part name on Rebrickable.
 
-`part_cat_id` is an reference (foreign key) to [`part_categories.id`](#part_categories) column.
+`part_cat_id` is a reference (foreign key) to [`part_categories.id`](#part_categories) column.
 
 `part_material` is the material from which this part is made. Possible values:
 
@@ -262,31 +264,105 @@ This table is not referenced by other tables in the schema.
 
 ## minifigs
 
+This table lists [minifigs](https://rebrickable.com/help/minifigs-standards/). Unlike it may seem, minifig is not necessarily derivative of torso+legs. Some minifigs are made of regular parts, for example, [fig-014490](https://rebrickable.com/minifigs/fig-014490/).
+
 Columns: `fig_num` (text, primary key), `name` (text), `num_parts` (integer), `img_url` (text).
+
+`fig_num` is an id unique for each minifig. Referenced by [`inventory_minifigs.fig_num`](#inventory_minifigs), and by [`inventories.set_num`](#inventories) trough [`set_nums`](#set_nums) table.
+
+All `fig_num` values follow this format: `fig-NNNNNN`, i.e. 6 decimal digits prefixed with "fig-". This is an internal id, assigned and used exclusively by Rebrickable.
+
+`name` is the minifig name on Rebrickable.
+
+`num_parts` is the number of parts in the minifig inventory. For the info, some minifigs have 100+ parts, for example, 141 in [fig-014675](https://rebrickable.com/minifigs/fig-014675/).
+
+`img_url` is the minifig image URL. As for now, _every_ `img_url` follows this format: `https://cdn.rebrickable.com/media/sets/<fig_num>.jpg`. So, for example, when embedding a subset of the database, `img_url` can be omitted to reduce data size.
 
 ## sets
 
 Columns: `set_num` (text, primary key), `name` (text), `year` (integer), `theme_id` (integer), `num_parts` (integer), `img_url` (text).
 
+`set_num` is an id unique for each set. Referenced by [`inventory_sets.set_num`](#inventory_sets), and by [`inventories.set_num`](#inventories) trough [`set_nums`](#set_nums) table.
+
+`name` is the set name on Rebrickable.
+
+`year` is the year when the set was released. Importance of this column is hard to overestimate. Years for the parts and colors are made using it. E.g. first year for the part is calculated as year of the set where this part was first used. And the part relationships, e.g. which part supersedes which, are also based on the part years.
+
+`theme_id` is the set theme as a reference (foreign key) to [`themes.id`](#themes) column.
+
+`num_parts` is total number of parts in the set, including parts from minifigs, if it has any, but not including spare parts. For example, set [60428-1](https://rebrickable.com/sets/60428-1/) has 114 standard parts, two minifigs with 6 and 20 parts, and 8 spare parts. `num_parts` is `140=114+6+20`.
+
+If the set includes other sets, for example [K4515-1](https://rebrickable.com/sets/K4515-1/), then parts from them are not counted in `num_parts` of the main set.
+
+`img_url` is the image URL of the set. As for now, _every_ `img_url` follows this format: `https://cdn.rebrickable.com/media/sets/<set_num_LOWERCASE>.jpg` (note that `set_num` must be in lowercase otherwise it results in HTTP 404). So, for example, when embedding a subset of the database, `img_url` can be omitted to reduce data size.
+
 ## inventories
 
 Columns: `id` (integer, primary key), `version` (integer), `set_num` (text).
+
+`id` is a number, unique for each inventory. Referenced by [`inventory_minifigs.inventory_id`](#inventory_minifigs), [`inventory_parts.inventory_id`](#inventory_parts), [`inventory_sets.inventory_id`](#inventory_sets).
+
+Being referenced by these three tables means inventory may include standard parts, minifigs, and even other sets.
+
+`version` is the inventory version on Rebrickable, starting from `1`.
+
+`set_num` references either [`minifigs.fig_num`](#minifigs) or [`sets.set_num`](#sets). So this table contains inventories for both sets and minifigs.
 
 ## inventory_minifigs
 
 Columns: `inventory_id` (integer), `fig_num` (text), `quantity` (integer).
 
+`inventory_id` is a reference (foreign key) to [`inventories.id`](#inventories) column.
+
+It represents inventory, which includes this minifig, **not** the inventory of minifig itself. To get inventory of minifig use `SELECT id from inventories i WHERE i.set_num = '<fig_num_you_need>'`.
+
+`fig_num` is a reference (foreign key) to [`minifigs.fig_num`](#minifigs).
+
+`quantity` is a number of these minifigs in the inventory.
+
 ## inventory_parts
 
 Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `quantity` (integer), `is_spare` (integer), `img_url` (text, nullable).
 
+`inventory_id` is a reference (foreign key) to [`inventories.id`](#inventories) column.
+
+`part_num` is a reference (foreign key) to [`parts.part_num`](#parts) column.
+
+`color_id` is a reference (foreign key) to [`colors.id`](#colors) column.
+
+`quantity` is a number of combinations `part_num`+`color_id`+`is_spare` in this inventory.
+
+`is_spare` is a `0`/`1` flag indicating if this is a spare part.
+
 `img_url` is the part image URL. When not `NULL` it always starts with `'https://cdn.rebrickable.com/media/parts/'`.
 
-As for now, this is the only reliably way to get an image URL for a given `part_num`+`color_id`.
+As for now, this `img_url` is the only reliable way to get an image URL for a given `part_num`+`color_id`.
+
+For almost all parts their image URLs are the same across all inventories (probably to reduce bandwidth usage on Rebrickable).
 
 ## inventory_sets
 
 Columns: `inventory_id` (integer), `set_num` (text), `quantity` (integer).
+
+`inventory_id` is a reference (foreign key) to [`inventories.id`](#inventories) column.
+
+It represents inventory, which includes this set, **not** the inventory of the set itself. To get inventory of the set use `SELECT id from inventories i WHERE i.set_num = '<set_num_you_need>'`.
+
+`set_num` is a reference (foreign key) to [`sets.set_num`](#sets).
+
+`quantity` is a number of these sets in the inventory.
+
+## set_nums
+
+Columns: `set_num` (text, primary key).
+
+This is "technical" table whose sole purpose is to satisfy foreign key constraint for [`inventories.set_num`](#inventories) column.
+
+`inventories.set_num` column may contain either `sets.set_num` or `minifigs.fig_num` but foreign key cannot reference two columns. So both these columns are combined in `set_nums` table using triggers and `inventories.set_num` references `set_nums.set_num`.
+
+This table is included in the database even when building Rebrickable tables alone, without [custom tables](#custom-tables), using `build.sh -rbonly` from the [source repository]({{ site.github.repository_url }}).
+
+It would be hard to decide if this table should be part of Rebrickable tables or custom tables via `ADD CONSTRAINT` variant of the `ALTER TABLE`. Fortunately SQLite leaves no choice here by [not supporting](https://www.sqlite.org/omitted.html) this variant of `ALTER TABLE`.
 
 # Custom Tables
 
@@ -296,13 +372,13 @@ These tables are non-trivially generated, i.e. their data cannot be obtained usi
 
 This is complementary 1-to-1 table to Rebrickable table [`colors`](#colors) and is separated only because Rebrickable tables are never modified in `rb.db`.
 
-Columns: `id` (integer, primary key), `sort_pos` (integer), `is_grayscale` (integer, 0/1, nullable).
+Columns: `id` (integer, primary key), `sort_pos` (integer), `is_grayscale` (integer, nullable).
 
 `id` is a reference (foreign key) to [`colors.id`](#colors) column.
 
 `sort_pos` is a color position in a sorted list of colors. It is designed to help sorting parts by color.
 
-`is_grayscale` is a flag indicating if color is considered as grayscale. In the following list it is set to `1` for points #3, #4, #5, to `0` for point #6, and to `NULL` for points #1, #2.
+`is_grayscale` is a `0`/`1` flag indicating if color is considered as grayscale. In the following list it is set to `1` for points #3, #4, #5, to `0` for point #6, and to `NULL` for points #1, #2.
 
 With the `sort_pos` colors are ordered the following way:
 1. `[Unknown]`
@@ -331,7 +407,7 @@ $ sqlite3 -csv rb.db "select id, name from colors natural join color_properties 
 
 ## similar_colors
 
-Columns: `ref_id` (integer, primary key), `ref_name` (text), `id` (integer), `name` (text), `rgb` (text), `is_trans` (integer, 0/1).
+Columns: `ref_id` (integer, primary key), `ref_name` (text), `id` (integer), `name` (text), `rgb` (text), `is_trans` (integer).
 
 This table lists similar colors for every color. It is inspired by Rebrickable build matching option _"Part color sensitivity" → "Parts that have similar colors will be matched."_ though results may be different.
 
