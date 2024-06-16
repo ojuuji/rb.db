@@ -54,9 +54,9 @@ CSV format, in which original Rebrickable tables are provided, cannot include ty
 - use `INTEGER` for columns containing id, year, quantity. The rest of columns are clearly text so it was not a hard guess
 - CSV has no concept of `NULL` values whereas all missing values in the Rebrickable tables semantically mean `NULL` and thus are imported this way in `rb.db`
 
-Schema of the [Rebrickable Tables](#rebrickable-tables) is described in the section of the same name. In addition to Rebrickable tables `rb.db` includes few custom tables, non-trivially generated from them. They are described in [Custom Tables](#custom-tables) section.
+Schema of the Rebrickable tables is described in [Rebrickable Tables](#rebrickable-tables) section. `rb.db` also includes few custom tables, non-trivially generated from them. They are described in [Custom Tables](#custom-tables) section.
 
-Almost all columns in Rebrickable tables cannot be `NULL`. Thus this is not mentioned in the columns description, and only for nullable columns there will be explicit note about this.
+Almost all columns in the tables cannot be `NULL`. Thus this is not mentioned in the columns description, and only for nullable columns there will be explicit note about this.
 
 #### Note about CSV import in SQLite3
 
@@ -106,7 +106,7 @@ $ sqlite3 rb.db "select * from colors group by is_trans"
 
 ## themes
 
-This table contains the [sets themes](https://rebrickable.com/help/set-themes/).
+This table contains the [set themes](https://rebrickable.com/help/set-themes/).
 
 Columns: `id` (integer, primary key), `name` (text), `parent_id` (integer, nullable).
 
@@ -121,9 +121,13 @@ As for now, the maximum length of themes chain is **3** (A→B→C).
 Example:
 
 ```
-$ sqlite3 -nullvalue NULL rb.db "select * from themes where 52 in (id, parent_id) limit 2"
-52|City|NULL
-53|Airport|52
+$ sqlite3 -table -nullvalue NULL rb.db "select * from themes where 52 in (id, parent_id) limit 2"
++----+---------+-----------+
+| id |  name   | parent_id |
++----+---------+-----------+
+| 52 | City    | NULL      |
+| 53 | Airport | 52        |
++----+---------+-----------+
 ```
 
 ## part_categories
@@ -247,24 +251,31 @@ Columns: `element_id` (integer, primary key), `part_num` (text), `color_id` (int
 The same sets of `part_num`+`color_id`+`design_id` may have multiple `element_id`:
 
 ```
-$ sqlite3 rb.db "select * from elements where part_num = '75c06'"
-4118741|75c06|0|76279
-4270745|75c06|0|76279
-4495367|75c06|0|76279
-4505063|75c06|0|
-4546459|75c06|0|76279
-4640742|75c06|0|76279
-6439553|75c06|10|
-6451143|75c06|10|100754
+$ sqlite3 -table rb.db "select * from elements where part_num = '75c06'"
++------------+----------+----------+-----------+
+| element_id | part_num | color_id | design_id |
++------------+----------+----------+-----------+
+| 4118741    | 75c06    | 0        | 76279     |
+| 4270745    | 75c06    | 0        | 76279     |
+| 4495367    | 75c06    | 0        | 76279     |
+| 4505063    | 75c06    | 0        |           |
+| 4546459    | 75c06    | 0        | 76279     |
+| 4640742    | 75c06    | 0        | 76279     |
+| 6439553    | 75c06    | 10       |           |
+| 6451143    | 75c06    | 10       | 100754    |
+| 4226277    | 75c06    | 134      |           |
+| 4268282    | 75c06    | 134      |           |
+| 4285897    | 75c06    | 134      |           |
++------------+----------+----------+-----------+
 ```
 
-For most of the part image URLs Rebrickable uses `element_id` (URL ends then with `/parts/elements/<element_id>.jpg`). However, not every element has an image. Also some parts do not have element images at all and instead use LDraw images or photos. So `element_id` is not reliable way to get a part image for a given `part_num`+`color_id`. See [`inventory_parts.img_url`](#inventory_parts) for a better solution.
+For most of the part image URLs Rebrickable uses `element_id` (URL ends then with `/parts/elements/<element_id>.jpg`). However, not every element has an image. Also some parts do not have element images at all and instead use LDraw images or photos. So `element_id` is not reliable way to get the part image URL for a given `part_num`+`color_id`. See [`inventory_parts.img_url`](#inventory_parts) for a better solution.
 
 This table is not referenced by other tables in the schema.
 
 ## minifigs
 
-This table lists [minifigs](https://rebrickable.com/help/minifigs-standards/). Unlike it may seem, minifig is not necessarily derivative of torso+legs. Some minifigs are made of regular parts, for example, [fig-014490](https://rebrickable.com/minifigs/fig-014490/).
+This table lists [minifigs](https://rebrickable.com/help/minifigs-standards/). Unlike it may seem, minifig is not necessarily a derivative of torso+legs. Some minifigs are made of regular parts, for example, [fig-014490](https://rebrickable.com/minifigs/fig-014490/).
 
 Columns: `fig_num` (text, primary key), `name` (text), `num_parts` (integer), `img_url` (text).
 
@@ -294,7 +305,7 @@ Columns: `set_num` (text, primary key), `name` (text), `year` (integer), `theme_
 
 If the set includes other sets, for example [K4515-1](https://rebrickable.com/sets/K4515-1/), then parts from them are not counted in `num_parts` of the main set.
 
-`img_url` is the image URL of the set. As for now, _every_ `img_url` follows this format: `https://cdn.rebrickable.com/media/sets/<set_num_LOWERCASE>.jpg` (note that `set_num` must be in lowercase otherwise it results in HTTP 404). So, for example, when embedding a subset of the database, `img_url` can be omitted to reduce data size.
+`img_url` is the image URL of the set. As for now, _every_ `img_url` follows this format: `https://cdn.rebrickable.com/media/sets/<set_num_LOWERCASE>.jpg` (note, `set_num` must be in lowercase otherwise URL results in HTTP 404). So, for example, when embedding a subset of the database, `img_url` can be omitted to reduce data size.
 
 ## inventories
 
@@ -358,11 +369,11 @@ Columns: `set_num` (text, primary key).
 
 This is "technical" table whose sole purpose is to satisfy foreign key constraint for [`inventories.set_num`](#inventories) column.
 
-`inventories.set_num` column may contain either `sets.set_num` or `minifigs.fig_num` but foreign key cannot reference two columns. So both these columns are combined in `set_nums` table using triggers and `inventories.set_num` references `set_nums.set_num`.
+`inventories.set_num` column may contain either `sets.set_num` or `minifigs.fig_num` but foreign key cannot reference two columns. So both these columns are combined in `set_nums` table using triggers and `inventories.set_num` references only `set_nums.set_num`.
 
 This table is included in the database even when building Rebrickable tables alone, without [custom tables](#custom-tables), using `build.sh -rbonly` from the [source repository]({{ site.github.repository_url }}).
 
-It would be hard to decide if this table should be part of Rebrickable tables or custom tables via `ADD CONSTRAINT` variant of the `ALTER TABLE`. Fortunately SQLite leaves no choice here by [not supporting](https://www.sqlite.org/omitted.html) this variant of `ALTER TABLE`.
+It would be hard to decide if this table should be part of Rebrickable tables, or it should be implemented in custom tables via `ADD CONSTRAINT` variant of the `ALTER TABLE`. Fortunately SQLite leaves no choice here by [not supporting](https://www.sqlite.org/omitted.html) this variant of `ALTER TABLE`.
 
 # Custom Tables
 
@@ -370,7 +381,7 @@ These tables are non-trivially generated, i.e. their data cannot be obtained usi
 
 ## color_properties
 
-This is complementary 1-to-1 table to Rebrickable table [`colors`](#colors) and is separated only because Rebrickable tables are never modified in `rb.db`.
+This is complementary 1-to-1 table to [`colors`](#colors) table and is separated only because Rebrickable tables are never modified in `rb.db`.
 
 Columns: `id` (integer, primary key), `sort_pos` (integer), `is_grayscale` (integer, nullable).
 
@@ -516,4 +527,4 @@ This table contains the following list of values:
 key|value
 ---|---
 `schema_version`|Version of the database schema. It is incremented with each schema modification, regardless of whether this modification is back compatible or not.
-`data_timestamp`|[UNIX timestamp](https://en.wikipedia.org/wiki/Unix_time) (in seconds) when the database was generated. New `rb.db` is released only when there is new data since the last release, so it is safe to assume that the databases with different `data_timestamp` values have different data.
+`data_timestamp`|[UNIX timestamp](https://en.wikipedia.org/wiki/Unix_time) (in seconds) when the database was generated. New `rb.db` is released only when there is new data since the last release, so it is safe to assume that the databases with different `data_timestamp` values have different data, and the one with greater `data_timestamp` contains more relevant data.
