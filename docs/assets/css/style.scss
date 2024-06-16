@@ -17,6 +17,10 @@ header {
   padding-bottom: 1em;
 }
 
+pre.highlight {
+  border: 1px solid $border-gray;
+}
+
 /* TOC */
 hr + ul {
   padding: 1em;
