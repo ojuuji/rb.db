@@ -1,5 +1,6 @@
 
 - [Database Schema](#database-schema)
+  - [Changelog](#changelog)
   - [Diagram](#diagram)
 - [Rebrickable Tables](#rebrickable-tables)
   - [colors](#colors)
@@ -63,6 +64,16 @@ For example, [`themes.parent_id`](#themes) foreign key constraint would fail at 
 
 This is why the import scripts import tables directly instead of relying on `.import` SQLite3 command.
 
+## Changelog
+
+Current [schema version](#rb_db_lov) is `5`. List of changes:
+
+1. Added [`rb_db_lov`](#rb_db_lov) table
+2. Renamed `color_properties.color_id` to [`color_properties.id`](#color_properties) as it is complementary table
+3. Added [`part_rels_extra`](#part_rels_extra) table
+4. Changed [`color.is_trans`](#color) and [`inventory_parts.is_spare`](#inventory_parts) types to `integer (0/1)`
+5. Added [`color_properties`](#color_properties)`.is_grayscale`
+
 ## Diagram
 
 ![Database diagram](schema.svg)
@@ -75,7 +86,7 @@ This table contains the [part colors](https://rebrickable.com/colors/).
 
 Columns: `id` (integer, primary key), `name` (text), `rgb` (text), `is_trans` (integer).
 
-`id` is a number, unique for each color. Referenced by [`inventory_parts.color_id`](#inventory_parts), [`elements.color_id`](#elements), [`color_properties.id`](#color_properties), [`similar_color_ids.ref_id`](#similar_colors), [`similar_color_ids.id`](#similar_colors).
+`id` is a number, unique for each color. Referenced by [`inventory_parts`](#inventory_parts)`.color_id`, [`elements.color_id`](#elements), [`color_properties.id`](#color_properties), [`similar_color_ids.ref_id`](#similar_colors), [`similar_color_ids.id`](#similar_colors).
 
 `name` is the color name on Rebrickable.
 
@@ -229,6 +240,26 @@ Rebrickable uses this relationship along with relationship `P` in the build matc
 
 Columns: `element_id` (integer, primary key), `part_num` (text), `color_id` (integer), `design_id` (integer, nullable).
 
+`element_id` is the most unique characteristic of a part.
+
+The same sets of `part_num`+`color_id`+`design_id` may have multiple `element_id`:
+
+```
+$ sqlite3 rb.db "select * from elements where part_num = '75c06'"
+4118741|75c06|0|76279
+4270745|75c06|0|76279
+4495367|75c06|0|76279
+4505063|75c06|0|
+4546459|75c06|0|76279
+4640742|75c06|0|76279
+6439553|75c06|10|
+6451143|75c06|10|100754
+```
+
+For most of the part image URLs Rebrickable uses `element_id` (URL ends then with `/parts/elements/<element_id>.jpg`). However, not every element has an image. Also some parts do not have element images at all and instead use LDraw images or photos. So `element_id` is not reliable way to get a part image for a given `part_num`+`color_id`. See [`inventory_parts.img_url`](#inventory_parts) for a better solution.
+
+This table is not referenced by other tables in the schema.
+
 ## minifigs
 
 Columns: `fig_num` (text, primary key), `name` (text), `num_parts` (integer), `img_url` (text).
@@ -247,7 +278,11 @@ Columns: `inventory_id` (integer), `fig_num` (text), `quantity` (integer).
 
 ## inventory_parts
 
-Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `quantity` (integer), `is_spare` (integer), `img_url` (text).
+Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `quantity` (integer), `is_spare` (integer), `img_url` (text, nullable).
+
+`img_url` is the part image URL. When not `NULL` it always starts with `'https://cdn.rebrickable.com/media/parts/'`.
+
+As for now, this is the only reliably way to get an image URL for a given `part_num`+`color_id`.
 
 ## inventory_sets
 
@@ -258,6 +293,8 @@ Columns: `inventory_id` (integer), `set_num` (text), `quantity` (integer).
 These tables are non-trivially generated, i.e. their data cannot be obtained using, for example, some simple query statement.
 
 ## color_properties
+
+This is complementary 1-to-1 table to Rebrickable table [`colors`](#colors) and is separated only because Rebrickable tables are never modified in `rb.db`.
 
 Columns: `id` (integer, primary key), `sort_pos` (integer), `is_grayscale` (integer, 0/1, nullable).
 
