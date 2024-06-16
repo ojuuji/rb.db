@@ -56,33 +56,26 @@ jobs:
       - name: Build database
         run: bash -x build.sh && ls -l data
 
-      - name: Cache database dump hash
-        uses: actions/cache@v4
-        with:
-          path: data/rb.dump.md5
-          key: SQL Dump Hash
-
-      - name: Compare database dump hashes
-        id: hash
+      - name: Generate database dump hash
+        id: generate-hash
         run: |
           set -xeu
           cd data
           sqlite3 rb.db .dump > rb.dump
           REGEX="INSERT INTO rb_db_lov VALUES\('data_timestamp','\d+'\);"
           grep -qPx "$REGEX" rb.dump
-          grep -vPx "$REGEX" rb.dump | md5sum | cut -d\  -f1 > rb.dump.md5.new
-          SAME=1
-          test -f rb.dump.md5 && diff rb.dump.md5{,.new} || SAME=0
-          mv -f rb.dump.md5{.new,}
-          echo "same=${SAME}" >> $GITHUB_OUTPUT
+          grep -vPx "$REGEX" rb.dump | md5sum | cut -d\  -f1 > rb.dump.md5
+          echo "md5=$(cat rb.dump.md5)" >> $GITHUB_OUTPUT
 
-      - name: Upload dump as artifact
-        uses: actions/upload-artifact@v4
+      - name: Cache database dump hash
+        id: hash
+        uses: actions/cache@v4
         with:
-          path: data/rb.dump
+          path: data/rb.dump.md5
+          key: SQL Dump Hash ${{ steps.generate-hash.outputs.md5 }}
 
       - name: Prepare release files
-        if: ${{ steps.hash.outputs.same == '0' }}
+        if: steps.hash.outputs.cache-hit != 'true'
         run: |
           set -xeu
           cd data
@@ -90,7 +83,7 @@ jobs:
           xz -k rb.db
 
       - name: Create release
-        if: ${{ steps.hash.outputs.same == '0' }}
+        if: steps.hash.outputs.cache-hit != 'true'
         id: release
         run: |
           set -xeu
@@ -103,7 +96,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
 
       - name: Update latest release
-        if: ${{ steps.hash.outputs.same == '0' }}
+        if: steps.hash.outputs.cache-hit != 'true'
         run: |
           set -xeu
           RELNAME="Latest (${{ steps.release.outputs.relname }})"
@@ -115,7 +108,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
 
       - name: Deploy site
-        if: ${{ steps.hash.outputs.same == '0' }}
+        if: steps.hash.outputs.cache-hit != 'true'
         run: |
           set -xeu
           WORKFLOW_ID="$(gh workflow list | grep -Poi 'site.+\s\K\d+$')"
@@ -135,7 +128,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT }}
 
       - name: Prune old releases
-        if: ${{ steps.hash.outputs.same == '0' }}
+        if: steps.hash.outputs.cache-hit != 'true'
         run: ./utils/prune_old_releases.sh
         env:
           GH_TOKEN: ${{ secrets.PAT }}
