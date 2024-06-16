@@ -76,6 +76,11 @@ jobs:
           mv -f rb.dump.md5{.new,}
           echo "same=${SAME}" >> $GITHUB_OUTPUT
 
+      - name: Upload dump as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: data/rb.dump
+
       - name: Prepare release files
         if: ${{ steps.hash.outputs.same == '0' }}
         run: |
