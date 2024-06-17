@@ -36,7 +36,8 @@ The main goal of `rb.db` is to provide original, unmodified tables from [Rebrick
 Releases are created automatically once a day, but only if there were actual changes since the last release.
 
 Retention policy:
-- git tag [`latest`]({{ site.github.repository_url }}/releases/tag/latest) is always recreated when releasing new version, so the links to the latest version are always the same
+- git tag [`latest`]({{ site.github.repository_url }}/releases/tag/latest) is always recreated when releasing new version, so the link to the latest version is always the same
+- git tag `latest-v<N>`, where `<N>` is the latest schema version, is also always recreated, and similar tags for older schemas are retained. The rationale is described in [`schema_version`](#schema_version) section
 - the last 10 releases are retained unconditionally
 - for older releases is retained the latest release of the month
 
@@ -54,7 +55,7 @@ CSV format, in which original Rebrickable tables are provided, cannot include ty
 - use `INTEGER` for columns containing id, year, quantity. The rest of columns are clearly text so it was not a hard guess
 - CSV has no concept of `NULL` values whereas all missing values in the Rebrickable tables semantically mean `NULL` and thus are imported this way in `rb.db`
 
-Schema of the Rebrickable tables is described in [Rebrickable Tables](#rebrickable-tables) section. `rb.db` also includes few custom tables, non-trivially generated from them. They are described in [Custom Tables](#custom-tables) section.
+Schema of the Rebrickable tables is described in [Rebrickable Tables](#rebrickable-tables) section. `rb.db` also includes few custom tables, non-trivially generated from them, and some handy views. They are described in [Custom Tables](#custom-tables) section.
 
 Almost all columns in the tables cannot be `NULL`. Thus this is not mentioned in the columns description, and only for nullable columns there will be explicit note about this.
 
@@ -522,9 +523,22 @@ SELECT *
 
 Columns: `key` (text), `value` (text).
 
-This table contains the following list of values:
+This table contains list of values, which are described in the following sections.
 
-key|value
----|---
-`schema_version`|Version of the database schema. It is incremented with each schema modification, regardless of whether this modification is back compatible or not.
-`data_timestamp`|[UNIX timestamp](https://en.wikipedia.org/wiki/Unix_time) (in seconds) when the database was generated. New `rb.db` is released only when there is new data since the last release, so it is safe to assume that the databases with different `data_timestamp` values have different data, and the one with greater `data_timestamp` contains more relevant data.
+### `schema_version`
+
+Version of the database schema. Just a number without dots or other characters.
+
+It is incremented with each schema modification, regardless of whether this modification is back compatible or not, or whether it is caused by a change in original Rebrickable tables or by some internal change in `rb.db`.
+
+In this case release from the [`latest`]({{ site.github.repository_url }}/releases/tag/latest) tag may not always be preferable, as it may include breaking schema changes without prior notice.
+
+To deliver updates with guarantee against unexpected schema changes `rb.db` uses tags with the schema version. They use format `latest-v<N>` where `<N>` is the schema version, for example [`latest-v5`]({{ site.github.repository_url }}/releases/tag/latest-v5).
+
+The idea is that you start using release with the most recent `latest-v<N>` tag and get updates until schema changes. After it changes nothing breaks on your side, so you just calmly check what changed and switch to the new schema version.
+
+### `data_timestamp`
+
+[UNIX timestamp](https://en.wikipedia.org/wiki/Unix_time) (in seconds) when the database was generated.
+
+New `rb.db` is released only when there is new data since the last release, so it is safe to assume that the databases with different `data_timestamp` values have different data, and the one with greater `data_timestamp` contains more relevant data.
