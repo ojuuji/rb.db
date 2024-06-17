@@ -47,7 +47,7 @@ jobs:
           eralchemy2 -i sqlite:///data/rb.db -o docs/schema.svg
 
       - name: Generate multiple_image_urls.txt
-        run: bash -x utils/multiple_image_urls.sh > docs/multiple_image_urls.txt
+        run: sqlite3 data/rb.db < utils/multiple_image_urls.sql > docs/multiple_image_urls.txt
 
       - name: Inject release info
         run: bash -x utils/inject_release_info.sh
