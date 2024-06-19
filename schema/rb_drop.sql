@@ -31,14 +31,18 @@ DROP INDEX IF EXISTS sets_year_idx;
 DROP INDEX IF EXISTS sets_theme_id_idx;
 
 DROP TABLE IF EXISTS inventories;
+DROP INDEX IF EXISTS inventories_set_num_version_idx;
 
 DROP TABLE IF EXISTS inventory_minifigs;
+DROP INDEX IF EXISTS inventory_minifigs_inventory_id_idx;
 DROP INDEX IF EXISTS inventory_minifigs_fig_num_idx;
 
 DROP TABLE IF EXISTS inventory_parts;
+DROP TABLE IF EXISTS inventory_parts_inventory_id_idx;
 DROP INDEX IF EXISTS inventory_parts_part_num_color_id_idx;
 
 DROP TABLE IF EXISTS inventory_sets;
+DROP TABLE IF EXISTS inventory_sets_inventory_id_idx;
 DROP INDEX IF EXISTS inventory_sets_set_num_idx;
 
 /*

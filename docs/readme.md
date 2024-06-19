@@ -27,6 +27,10 @@
   - [similar_colors](#similar_colors)
   - [part_rels_resolved](#part_rels_resolved)
   - [part_rels_extra](#part_rels_extra)
+  - [part_color_stats](#part_color_stats)
+  - [part_stats](#part_stats)
+  - [part_color_images](#part_color_images)
+  - [part_images](#part_images)
   - [rb_db_lov](#rb_db_lov)
 
 {% include download.html %}
@@ -51,7 +55,7 @@ For Rebrickable tables the main rule is to import them as-is, without adding/rem
 
 CSV format, in which original Rebrickable tables are provided, cannot include types information for the stored data. Therefore column data types, used by the schema, are determined basing on the column content and SQLite3 specifics:
 - use only `INTEGER` and `TEXT` to avoid possible confusion, as the data types like `VARCHAR(N)` do not really imply any constraints in SQLite ([docs](https://www.sqlite.org/datatype3.html)). Rigid typing allows only a few data types, so this was (fortunately) not much of a choice
-- use `INTEGER` values `0` and `1` for boolean columns. Original tables store single `t`/`f` characters (_"true"_/_"false"_) but in context of the schema `0`/`1` are more appropriate as they allow to use natural conditions like `WHERE is_trans`/`WHERE NOT(is_trans)`
+- use `INTEGER` values `0` and `1` for boolean columns. Original tables store single `t`/`f` characters (_"true"_/_"false"_) but in context of the schema `0`/`1` are more appropriate as they allow to use natural conditions like `WHERE is_trans`/`WHERE NOT is_trans`
 - use `INTEGER` for columns containing id, year, quantity. The rest of columns are clearly text so it was not a hard guess
 - CSV has no concept of `NULL` values whereas all missing values in the Rebrickable tables semantically mean `NULL` and thus are imported this way in `rb.db`
 
@@ -320,6 +324,8 @@ Being referenced by these three tables means inventory may include standard part
 
 `set_num` references either [`minifigs.fig_num`](#minifigs) or [`sets.set_num`](#sets). So this table contains inventories for both sets and minifigs.
 
+On practice minifig inventories include only standard parts, i.e. they link only to `inventory_parts` table. As for the sets, they may include all three types of content, for example, [`COMCON002-1`](https://rebrickable.com/sets/COMCON002-1/). Nevertheless Rebrickable counts only standard parts and parts from minifigs in combined inventory of the main set. So does `rb.db` in [`part_stats.num_parts`](#part_stats) and elsewhere.
+
 ## inventory_minifigs
 
 Columns: `inventory_id` (integer), `fig_num` (text), `quantity` (integer).
@@ -518,6 +524,30 @@ SELECT *
 SELECT *
   FROM part_rels_extra
 ```
+
+## part_color_stats
+
+This is a view.
+
+Columns: `part_num` (text), `color_id` (integer), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer).
+
+## part_stats
+
+This is a view.
+
+Columns: `part_num` (text), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer).
+
+## part_color_images
+
+This is a view.
+
+Columns: `part_num` (text), `color_id` (integer), `img_url` (text).
+
+## part_images
+
+This is a view.
+
+Columns: `part_num` (text), `img_url` (text).
 
 ## rb_db_lov
 

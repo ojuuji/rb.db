@@ -12,4 +12,11 @@ DROP INDEX IF EXISTS part_rels_resolved_rel_type_child_part_num_idx;
 DROP TABLE IF EXISTS part_rels_extra;
 DROP INDEX IF EXISTS part_rels_extra_rel_type_child_part_num_idx;
 
+DROP VIEW IF EXISTS ___set_part_colors_sparse;
+DROP VIEW IF EXISTS part_color_stats;
+DROP VIEW IF EXISTS part_stats;
+
+DROP VIEW IF EXISTS part_color_images;
+DROP VIEW IF EXISTS part_images;
+
 DROP TABLE IF EXISTS rb_db_lov;

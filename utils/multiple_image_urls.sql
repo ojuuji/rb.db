@@ -20,7 +20,7 @@ SELECT part_num, color_id, img_url, count(set_num) num_sets, set_num 'example se
  USING (part_num, color_id)
   JOIN inventories i
     ON i.id = ip.inventory_id
- GROUP BY part_num, color_id, img_url
+ GROUP BY 1, 2, 3
  ORDER BY 1, 2, 3;
 
 -- Print parts which have NULL and non-NULL image URLs
@@ -35,5 +35,5 @@ SELECT part_num, color_id, img_url, count(set_num) num_sets, set_num 'example se
  USING (part_num, color_id)
   JOIN inventories i
     ON i.id = ip.inventory_id
- GROUP BY part_num, color_id, img_url
- ORDER BY 1, 2, 3
+ GROUP BY 1, 2, 3
+ ORDER BY 1, 2, 3;

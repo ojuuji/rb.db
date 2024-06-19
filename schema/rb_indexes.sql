@@ -16,8 +16,13 @@ CREATE INDEX elements_part_num_color_id_idx ON elements(part_num, color_id);
 CREATE INDEX sets_year_idx ON sets(year);
 CREATE INDEX sets_theme_id_idx ON sets(theme_id);
 
+CREATE INDEX inventories_set_num_version_idx ON inventories(set_num, version);
+
+CREATE INDEX inventory_minifigs_inventory_id_idx ON inventory_minifigs(inventory_id);
 CREATE INDEX inventory_minifigs_fig_num_idx ON inventory_minifigs(fig_num);
 
+CREATE INDEX inventory_parts_inventory_id_idx ON inventory_parts(inventory_id);
 CREATE INDEX inventory_parts_part_num_color_id_idx ON inventory_parts(part_num, color_id);
 
+CREATE INDEX inventory_sets_inventory_id_idx ON inventory_sets(inventory_id);
 CREATE INDEX inventory_sets_set_num_idx ON inventory_sets(set_num);
