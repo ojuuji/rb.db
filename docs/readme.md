@@ -73,13 +73,14 @@ This is why the import scripts import tables directly instead of relying on `.im
 
 ## Changelog
 
-Current [schema version](#rb_db_lov) is `5`. List of changes:
+Current [schema version](#rb_db_lov) is **6**. List of changes for each schema version:
 
-1. Added [`rb_db_lov`](#rb_db_lov) table
-2. Renamed `color_properties.color_id` to [`color_properties.id`](#color_properties) as it is complementary table
-3. Added [`part_rels_extra`](#part_rels_extra) table
-4. Changed [`color.is_trans`](#color) and [`inventory_parts.is_spare`](#inventory_parts) types to `integer (0/1)`
-5. Added [`color_properties.is_grayscale`](#color_properties)
+1. added table [`rb_db_lov`](#rb_db_lov)
+2. renamed column `color_properties.color_id` to [`color_properties.id`](#color_properties) as this is complementary table
+3. added table [`part_rels_extra`](#part_rels_extra)
+4. changed column types to `integer (0/1)` for [`color.is_trans`](#color) and [`inventory_parts.is_spare`](#inventory_parts)
+5. added column [`color_properties.is_grayscale`](#color_properties)
+6. added views [`part_color_stats`](#part_color_stats), [`part_stats`](#part_stats), [`part_color_images`](#part_color_images), [`part_images`](#part_images)
 
 ## Diagram
 
@@ -527,27 +528,43 @@ SELECT *
 
 ## part_color_stats
 
-This is a view.
-
 Columns: `part_num` (text), `color_id` (integer), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer).
+
+This is a view based on the set inventories. It does not include parts which do not appear in the sets or in minifigs from the sets.
+
+`part_num` is a reference (foreign key) to [`parts.part_num`](#parts) column.
+
+`color_id` is a reference (foreign key) to [`colors.id`](#colors) column.
+
+`num_sets` is a number of sets which include this part/color either as standard part or as minifig part.
+
+`min_year`/`max_year` are minimum/maximum years of these sets.
+
+`num_parts` is total number of these part/color in the set inventory and all its minifigs, but not including spare parts. This is how Rebrickable counts "Num Set Parts" stat on the part detail pages.
 
 ## part_stats
 
-This is a view.
-
 Columns: `part_num` (text), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer).
+
+This is basically the same view as `part_color_stats` except that the stats for all part colors are combined together.
 
 ## part_color_images
 
-This is a view.
-
 Columns: `part_num` (text), `color_id` (integer), `img_url` (text).
+
+`part_num` is a reference (foreign key) to [`parts.part_num`](#parts) column.
+
+`color_id` is a reference (foreign key) to [`colors.id`](#colors) column.
+
+This is a view based on [`inventory_parts`](#inventory_parts) table. It does not include parts which do not appear there and parts where `img_url` is `NULL`. For every other `part_num` it has only one `img_url` following this priority: `element` → `ldraw` → `photo` (but there are actually almost no parts with multiple image URLs).
 
 ## part_images
 
-This is a view.
-
 Columns: `part_num` (text), `img_url` (text).
+
+This view is similar to `part_color_images`. The only difference is how `img_url` is determined.
+
+Which image to choose when describing a part in general, not a part in specific color? Rebrickable choses the part which has the largest number of the set parts, even if it is referenced not in the most sets. So does this view.
 
 ## rb_db_lov
 
