@@ -26,5 +26,5 @@ TS="$(sqlite3 rb.db "SELECT value FROM rb_db_lov WHERE key = 'data_timestamp'")"
 DT="$(date -d"@$TS" --utc +'%Y-%m-%d %H:%M')"
 
 Release "${DT//[ :]/-}" "$DT"
-Release "latest-v$SCHEMA" "Latest for Schema V$SCHEMA ($DT)"
+Release "latest-v$SCHEMA" "Latest for schema v$SCHEMA ($DT)"
 Release "latest" "Latest ($DT)"
