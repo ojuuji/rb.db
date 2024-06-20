@@ -1,5 +1,8 @@
+-- Description: Print parts which have multiple distinct image URLs in [`inventory_parts`](#inventory_parts) table.
+
 .bail ON
 .mode table --wrap 0
+.output parts_with_multiple_images.txt
 .echo ON
 
 SELECT datetime(value, 'unixepoch') 'DB version'

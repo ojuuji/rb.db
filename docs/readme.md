@@ -32,6 +32,7 @@
   - [part_color_images](#part_color_images)
   - [part_images](#part_images)
   - [rb_db_lov](#rb_db_lov)
+- [Examples](#examples)
 
 {% include download.html %}
 
@@ -355,9 +356,11 @@ Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `qua
 
 `img_url` is the part image URL. When not `NULL` it always starts with `'https://cdn.rebrickable.com/media/parts/'`.
 
-As for now, this `img_url` is the only reliable way to get an image URL for a given `part_num`+`color_id`.
+As for now, this `img_url` is the most reliable way to get an image URL for a given `part_num`+`color_id`, so [`part_color_images`](#part_color_images) and [`part_images`](#part_images) are based on it.
 
-For [almost](multiple_image_urls.txt) all parts their image URLs are the same across all inventories (probably to reduce bandwidth usage on Rebrickable).
+However note that it includes image URLs of "similar parts" if part does not have image. On Rebrickable these images are displayed in inventories with ["Similar Image"](https://rebrickable.com/static/img/overlays/similar.png) overlay and a note in image title saying _"Exact image not available, using similar image from part `<similar_part_num>`"_.
+
+For [almost](examples/parts_with_multiple_images.txt) all parts their image URLs are the same across all inventories.
 
 ## inventory_sets
 
@@ -556,7 +559,7 @@ Columns: `part_num` (text), `color_id` (integer), `img_url` (text).
 
 `color_id` is a reference (foreign key) to [`colors.id`](#colors) column.
 
-This is a view based on [`inventory_parts`](#inventory_parts) table. It does not include parts which do not appear there and parts where `img_url` is `NULL`. For every other `part_num` it has only one `img_url` following this priority: `element` → `ldraw` → `photo` (but there are actually almost no parts with multiple image URLs).
+This is a view based on [`inventory_parts`](#inventory_parts) table (read notes about `img_url` there). It only includes parts which appear in that table and have `img_url` not `NULL`. Only one `img_url` per part/color is included following this priority: `element` → `ldraw` → `photo` (but there are actually almost no parts with multiple image URLs).
 
 ## part_images
 
@@ -589,3 +592,7 @@ The idea is that you start using release with the most recent `latest-v<N>` tag 
 [UNIX timestamp](https://en.wikipedia.org/wiki/Unix_time) (in seconds) when the database was generated.
 
 New `rb.db` is released only when there is new data since the last release, so it is safe to assume that the databases with different `data_timestamp` values have different data, and the one with greater `data_timestamp` contains more relevant data.
+
+# Examples
+
+{% include examples.md %}

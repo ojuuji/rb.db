@@ -38,16 +38,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate delta_e_chart.html
-        run: python utils/delta_e_chart.py > docs/delta_e_chart.html
+        run: python utils/render_delta_e_chart.py > docs/delta_e_chart.html
+
+      - name: Generate examples
+        run: ./utils/run_examples.sh && python utils/render_examples.py > docs/_includes/examples.md
 
       - name: Generate diagram
         run: |
           sudo apt install graphviz graphviz-dev
           pip install eralchemy2
           eralchemy2 -i sqlite:///data/rb.db -o docs/schema.svg
-
-      - name: Generate multiple_image_urls.txt
-        run: sqlite3 data/rb.db < utils/multiple_image_urls.sql > docs/multiple_image_urls.txt
 
       - name: Inject release info
         run: bash -x utils/inject_release_info.sh
