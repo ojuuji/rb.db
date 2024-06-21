@@ -1,5 +1,3 @@
--- Description: Print parts which have multiple distinct image URLs in [`inventory_parts`](#inventory_parts) table.
-
 .bail ON
 .mode table --wrap 0
 .output parts_with_multiple_images.txt
@@ -9,7 +7,7 @@ SELECT datetime(value, 'unixepoch') 'DB version'
   FROM rb_db_lov
  WHERE key = 'data_timestamp';
 
--- Print parts which have multiple non-NULL image URLs
+-- Parts which have multiple non-NULL image URLs in `inventory_parts` table.
 
 SELECT part_num, color_id, img_url, count(set_num) num_sets, set_num 'example set_num'
   FROM inventory_parts ip
@@ -26,7 +24,7 @@ SELECT part_num, color_id, img_url, count(set_num) num_sets, set_num 'example se
  GROUP BY 1, 2, 3
  ORDER BY 1, 2, 3;
 
--- Print parts which have NULL and non-NULL image URLs
+-- And parts which have both NULL and non-NULL image URLs.
 
 SELECT part_num, color_id, img_url, count(set_num) num_sets, set_num 'example set_num'
   FROM inventory_parts ip

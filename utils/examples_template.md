@@ -1,5 +1,5 @@
-Description|SQL|Output
+Description|Source|Output
 ---|---|---
 {% for e in examples -%}
-{{ e.desc }}|[{{ e.sql }}](examples/{{ e.sql }})|{% if e.out %}[{{ e.out }}](examples/{{ e.out }}){% endif %}
+{{ e.desc }}|[[`sql`](examples/{{ e.sql }})]|{% if e.out %}[[`{{ e.ext }}`](examples/{{ e.out }})]{% endif %}
 {% endfor %}

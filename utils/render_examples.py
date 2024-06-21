@@ -2,7 +2,7 @@ import glob
 from jinja2 import Environment, FileSystemLoader
 import os
 
-DESC_PREFIX = '-- Description: '
+DESC_PREFIX = '-- '
 OUT_PREFIX = '.output '
 
 
@@ -10,17 +10,20 @@ def collect_examples(dir):
     examples = []
 
     for path in glob.glob(f'{dir}/*.sql'):
-        desc = sql = os.path.basename(path)
-        out = None
+        desc = []
+        sql = os.path.basename(path)
+        out = ext = None
 
         with open(path, 'r') as file:
             for line in file:
                 if line.startswith(DESC_PREFIX):
-                    desc = line.rstrip()[len(DESC_PREFIX):]
+                    desc.append(line.rstrip()[len(DESC_PREFIX):])
                 if line.startswith(OUT_PREFIX):
                     out = line.rstrip()[len(OUT_PREFIX):]
+                    ext = os.path.splitext(out)[1].lstrip('.')
 
-        examples.append({'desc': desc, 'sql': sql, 'out': out})
+        fulldesc = ' '.join(desc) if len(desc) else os.path.splitext(sql)[0]
+        examples.append({'desc': fulldesc, 'sql': sql, 'out': out, 'ext': ext})
 
     return examples
 
