@@ -1,7 +1,7 @@
+.output img_in_plain_but_not_in_print.txt
+.echo ON
 .bail ON
 .mode table --wrap 0
-.output plain_similar_to_prints.txt
-.echo ON
 
 SELECT datetime(value, 'unixepoch') 'DB version'
   FROM rb_db_lov
@@ -10,7 +10,7 @@ SELECT datetime(value, 'unixepoch') 'DB version'
 -- Printed parts which do not have image while plain parts in the same color has one.
 
 SELECT row_number() OVER () '#'
-     , set_num 'example set_num'
+     , set_num example_set_num
      , ip.part_num part_num
      , ip.color_id color_id
      , pip.part_num plain_part_num

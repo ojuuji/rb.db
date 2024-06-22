@@ -360,7 +360,7 @@ As for now, this `img_url` is the most reliable way to get an image URL for a gi
 
 However note that it includes image URLs of "similar parts" if part does not have image. On Rebrickable these images are displayed in inventories with ["Similar Image"](https://rebrickable.com/static/img/overlays/similar.png) overlay and a note in image title saying _"Exact image not available, using similar image from part `<similar_part_num>`"_.
 
-For [almost](examples/parts_with_multiple_images.txt) all parts their image URLs are the same across all inventories.
+For [almost](examples/diff_img_in_same_part.txt) all parts their image URLs are the same across all inventories.
 
 ## inventory_sets
 
