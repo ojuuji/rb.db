@@ -24,5 +24,5 @@ SELECT sc.name, '#' || sc.rgb
  WHERE c.name = 'Pastel Blue' and sc.id != 9999
  ORDER BY cp.sort_pos;
 
-.print <script>document.querySelectorAll('td+td').forEach(e=>{e.style.background=e.innerHTML;e.innerHTML=''});</script>
+.print <script>document.querySelectorAll('td+td').forEach(e=>{e.style.background=e.innerHTML;e.innerHTML=''})</script>
 .print </tbody></table></body>

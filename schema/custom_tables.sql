@@ -37,23 +37,22 @@ CREATE TABLE part_rels_extra(
 CREATE VIEW ___set_parts_for_stats
 AS
     WITH set_inventories
-      AS (
-            SELECT set_num, year, id inventory_id
-              FROM sets
-              JOIN inventories
-             USING (set_num)
-             GROUP BY set_num
-            HAVING max(version)
+      AS (SELECT set_num, year, id inventory_id
+            FROM sets
+            JOIN inventories
+           USING (set_num)
+           GROUP BY set_num
+          HAVING max(version)
          )
          /* parts from sets */
-  SELECT set_num, year, part_num, color_id, quantity
+  SELECT set_num, year, part_num, color_id, img_url, quantity
     FROM set_inventories
     JOIN inventory_parts
    USING (inventory_id)
    WHERE NOT is_spare
    UNION ALL
          /* parts from minifigs */
-  SELECT si.set_num set_num, year, part_num, color_id, (im.quantity * ip.quantity) quantity
+  SELECT si.set_num set_num, year, part_num, color_id, img_url, (im.quantity * ip.quantity) quantity
     FROM set_inventories si
     JOIN inventory_minifigs im
    USING (inventory_id)
@@ -71,6 +70,7 @@ AS
        , min(year) min_year
        , max(year) max_year
        , sum(quantity) num_parts
+       , min(img_url) img_url
     FROM ___set_parts_for_stats
    GROUP BY 1, 2;
 
@@ -81,29 +81,24 @@ AS
        , min(year) min_year
        , max(year) max_year
        , sum(quantity) num_parts
+       , min(img_url) img_url
     FROM ___set_parts_for_stats
    GROUP BY 1;
 
-CREATE VIEW part_color_images
+CREATE VIEW color_stats
 AS
-  SELECT part_num, color_id, min(img_url) img_url
-    FROM inventory_parts
-   WHERE img_url IS NOT NULL
-   GROUP BY 1, 2;
-
-CREATE VIEW part_images
-AS
-  SELECT part_num, img_url
-    FROM part_color_images
-    LEFT OUTER JOIN part_color_stats
-   USING (part_num, color_id)
-   GROUP BY part_num
-  HAVING max(num_parts);
+  SELECT color_id
+       , count(DISTINCT set_num) num_sets
+       , min(year) min_year
+       , max(year) max_year
+       , sum(quantity) num_parts
+    FROM ___set_parts_for_stats
+   GROUP BY 1;
 
 CREATE TABLE rb_db_lov(
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
 ) STRICT;
 
-INSERT INTO rb_db_lov VALUES('schema_version', '6');
+INSERT INTO rb_db_lov VALUES('schema_version', '7');
 INSERT INTO rb_db_lov VALUES('data_timestamp', strftime('%s', 'now'));

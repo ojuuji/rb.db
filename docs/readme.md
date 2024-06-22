@@ -29,8 +29,7 @@
   - [part_rels_extra](#part_rels_extra)
   - [part_color_stats](#part_color_stats)
   - [part_stats](#part_stats)
-  - [part_color_images](#part_color_images)
-  - [part_images](#part_images)
+  - [color_stats](#color_stats)
   - [rb_db_lov](#rb_db_lov)
 - [Examples](#examples)
 
@@ -74,7 +73,7 @@ This is why the import scripts import tables directly instead of relying on `.im
 
 ## Changelog
 
-Current [schema version](#rb_db_lov) is **6**. List of changes for each schema version:
+Current [schema version](#rb_db_lov) is **7**. List of changes for each schema version:
 
 1. added table [`rb_db_lov`](#rb_db_lov)
 2. renamed column `color_properties.color_id` to [`color_properties.id`](#color_properties) as this is complementary table
@@ -82,6 +81,7 @@ Current [schema version](#rb_db_lov) is **6**. List of changes for each schema v
 4. changed column types to `integer (0/1)` for [`color.is_trans`](#color) and [`inventory_parts.is_spare`](#inventory_parts)
 5. added column [`color_properties.is_grayscale`](#color_properties)
 6. added views [`part_color_stats`](#part_color_stats), [`part_stats`](#part_stats), [`part_color_images`](#part_color_images), [`part_images`](#part_images)
+7. added view [`color_stats`](#color_stats) and merged views [`part_[color_]images`] with [`part_[color_]stats`]
 
 ## Diagram
 
@@ -356,7 +356,7 @@ Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `qua
 
 `img_url` is the part image URL. When not `NULL` it always starts with `'https://cdn.rebrickable.com/media/parts/'`.
 
-As for now, this `img_url` is the most reliable way to get an image URL for a given `part_num`+`color_id`, so [`part_color_images`](#part_color_images) and [`part_images`](#part_images) are based on it.
+As for now, this `img_url` is the most reliable way to get an image URL for a given `part_num`+`color_id`, so `img_url` in [`part_color_stats`](#part_color_stats) and [`part_stats`](#part_stats) is based on it.
 
 However note that it includes image URLs of "similar parts" if part does not have image. On Rebrickable these images are displayed in inventories with ["Similar Image"](https://rebrickable.com/static/img/overlays/similar.png) overlay and a note in image title saying _"Exact image not available, using similar image from part `<similar_part_num>`"_.
 
@@ -531,7 +531,7 @@ SELECT *
 
 ## part_color_stats
 
-Columns: `part_num` (text), `color_id` (integer), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer).
+Columns: `part_num` (text), `color_id` (integer), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer), `img_url` (text, nullable).
 
 This is a view based on the set inventories. It does not include parts which do not appear in the sets or in minifigs from the sets.
 
@@ -545,29 +545,21 @@ This is a view based on the set inventories. It does not include parts which do 
 
 `num_parts` is total number of these part/color in the set inventory and all its minifigs, but not including spare parts. This is how Rebrickable counts "Num Set Parts" stat on the part detail pages.
 
+`img_url` is an image URL for the part/color. It is based on [`inventory_parts`](#inventory_parts) table (read notes about `img_url` there). `part_color_stats` has only one row per part/color, so when choosing which image to use it follows this priority: `element` → `ldraw` → `photo` → `NULL` (but there are actually almost no parts with multiple image URLs).
+
 ## part_stats
 
-Columns: `part_num` (text), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer).
+Columns: `part_num` (text), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer), `img_url` (text, nullable).
 
-This is basically the same view as `part_color_stats` except that the stats for all part colors are combined together.
+This is basically the same view as `part_color_stats` except that the stats for all part colors are combined together. It is not derivative of `part_color_stats` as you cannot calculate, for example, `part_stats.num_sets` using `part_color_stats.num_sets`.
 
-## part_color_images
+A note about `img_url` here. Which image to choose when describing a part in general, not a part in specific color? Rebrickable chooses the part which has the largest number of the set parts, even if it is referenced not in the most sets. So does this view.
 
-Columns: `part_num` (text), `color_id` (integer), `img_url` (text).
+## color_stats
 
-`part_num` is a reference (foreign key) to [`parts.part_num`](#parts) column.
+Columns: `color_id` (integer), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer).
 
-`color_id` is a reference (foreign key) to [`colors.id`](#colors) column.
-
-This is a view based on [`inventory_parts`](#inventory_parts) table (read notes about `img_url` there). It only includes parts which appear in that table and have `img_url` not `NULL`. Only one `img_url` per part/color is included following this priority: `element` → `ldraw` → `photo` (but there are actually almost no parts with multiple image URLs).
-
-## part_images
-
-Columns: `part_num` (text), `img_url` (text).
-
-This view is similar to `part_color_images`. The only difference is how `img_url` is determined.
-
-Which image to choose when describing a part in general, not a part in specific color? Rebrickable choses the part which has the largest number of the set parts, even if it is referenced not in the most sets. So does this view.
+This is basically the same view as `part_color_stats` except that the stats for all part numbers are combined together. So read description of [`part_color_stats`](#part_color_stats) instead.
 
 ## rb_db_lov
 
