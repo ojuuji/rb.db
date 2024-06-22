@@ -8,9 +8,9 @@ on:
     branches:
       - master
     paths:
-      - '**.py'
-      - '**.sh'
-      - '**.sql'
+      - 'build/*'
+      - 'schema/*'
+      - 'build.sh'
 
   workflow_dispatch:
 

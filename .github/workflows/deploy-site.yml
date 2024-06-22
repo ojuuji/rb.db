@@ -2,8 +2,11 @@ name: Deploy site
 
 on:
   push:
-    branches: [master]
-    paths: ['docs/**']
+    branches:
+      - master
+    paths:
+      - 'docs/**'
+      - 'examples/*'
 
   workflow_dispatch:
 
