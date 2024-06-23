@@ -81,7 +81,7 @@ Current [schema version](#rb_db_lov) is **7**. List of changes for each schema v
 4. changed column types to `integer (0/1)` for [`color.is_trans`](#color) and [`inventory_parts.is_spare`](#inventory_parts)
 5. added column [`color_properties.is_grayscale`](#color_properties)
 6. added views [`part_color_stats`](#part_color_stats), [`part_stats`](#part_stats), [`part_color_images`](#part_color_images), [`part_images`](#part_images)
-7. added view [`color_stats`](#color_stats) and merged views [`part_[color_]images`] with [`part_[color_]stats`]
+7. added view [`color_stats`](#color_stats) and merged views `part_[color_]images` with `part_[color_]stats`
 
 ## Diagram
 
