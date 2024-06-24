@@ -326,6 +326,8 @@ Being referenced by these three tables means inventory may include standard part
 
 `set_num` references either [`minifigs.fig_num`](#minifigs) or [`sets.set_num`](#sets). So this table contains inventories for both sets and minifigs.
 
+As for now, `minifigs` do not have multiple inventories, i.e. for minifig inventories `version` is always equal to `1`.
+
 On practice minifig inventories include only standard parts, i.e. they link only to `inventory_parts` table. As for the sets, they may include all three types of content, for example, [`COMCON002-1`](https://rebrickable.com/sets/COMCON002-1/). Nevertheless Rebrickable counts only standard parts and parts from minifigs in combined inventory of the main set. So does `rb.db` in [`part_stats.num_parts`](#part_stats) and elsewhere.
 
 ## inventory_minifigs

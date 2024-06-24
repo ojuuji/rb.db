@@ -45,7 +45,7 @@ CREATE TABLE elements(
 ) STRICT;
 
 CREATE TABLE minifigs(
-  fig_num TEXT PRIMARY KEY CHECK(NOT fig_num GLOB '*[^0-9A-Za-z-]*'),
+  fig_num TEXT PRIMARY KEY CHECK(fig_num GLOB 'fig-[0-9][0-9][0-9][0-9][0-9][0-9]'),
   name TEXT NOT NULL,
   num_parts INTEGER NOT NULL,
   img_url TEXT NOT NULL CHECK(instr(img_url, 'https://cdn.rebrickable.com/media/sets/') == 1)
@@ -53,7 +53,7 @@ CREATE TABLE minifigs(
 
 CREATE TABLE sets(
   -- set_num may also contain a dot ('1224.1-1')
-  set_num TEXT PRIMARY KEY CHECK(NOT set_num GLOB '*[^0-9A-Za-z.-]*'),
+  set_num TEXT PRIMARY KEY CHECK(set_num NOT GLOB '*[^0-9A-Za-z.-]*' AND set_num NOT LIKE 'fig-%'),
   name TEXT NOT NULL,
   year INTEGER NOT NULL CHECK(year >= 1932 AND year <= 1 + CAST(strftime('%Y', CURRENT_TIMESTAMP) AS INTEGER)),
   theme_id INTEGER NOT NULL REFERENCES themes(id),
@@ -64,7 +64,8 @@ CREATE TABLE sets(
 CREATE TABLE inventories(
   id INTEGER PRIMARY KEY,
   version INTEGER NOT NULL CHECK(version >= 1),
-  set_num TEXT NOT NULL REFERENCES set_nums(set_num)
+  set_num TEXT NOT NULL REFERENCES set_nums(set_num),
+  CHECK (version = 1 OR set_num NOT LIKE 'fig-%')
 ) STRICT;
 
 CREATE TABLE inventory_minifigs(
