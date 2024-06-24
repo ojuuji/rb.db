@@ -37,30 +37,33 @@ CREATE TABLE part_rels_extra(
 CREATE VIEW ___set_parts_for_stats
 AS
     WITH set_inventories
-      AS (SELECT set_num, year, id inventory_id
+      AS (SELECT set_num, version, year, id inventory_id
             FROM sets
             JOIN inventories
            USING (set_num)
-           GROUP BY set_num
-          HAVING max(version)
          )
-         /* parts from sets */
-  SELECT set_num, year, part_num, color_id, img_url, quantity
-    FROM set_inventories
-    JOIN inventory_parts
-   USING (inventory_id)
+       , set_parts
+      AS (    -- parts from sets
+          SELECT set_num, version, year, part_num, color_id, quantity, is_spare, img_url
+            FROM set_inventories
+            JOIN inventory_parts
+           USING (inventory_id)
+           UNION ALL
+              -- parts from minifigs
+          SELECT si.set_num, si.version, year, part_num, color_id, (im.quantity * ip.quantity) quantity, is_spare, img_url
+            FROM set_inventories si
+            JOIN inventory_minifigs im
+           USING (inventory_id)
+            JOIN inventories i
+              ON i.set_num = im.fig_num
+            JOIN inventory_parts ip
+              ON ip.inventory_id = i.id
+         )
+  SELECT *
+    FROM set_parts
    WHERE NOT is_spare
-   UNION ALL
-         /* parts from minifigs */
-  SELECT si.set_num set_num, year, part_num, color_id, img_url, (im.quantity * ip.quantity) quantity
-    FROM set_inventories si
-    JOIN inventory_minifigs im
-   USING (inventory_id)
-    JOIN inventories i
-      ON i.set_num = im.fig_num
-    JOIN inventory_parts ip
-      ON ip.inventory_id = i.id
-   WHERE NOT is_spare;
+   GROUP BY set_num, part_num, color_id
+  HAVING max(version);
 
 CREATE VIEW part_color_stats
 AS
