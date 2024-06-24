@@ -151,7 +151,7 @@ Columns: `part_num` (text, primary key), `name` (text), `part_cat_id` (integer),
 
 `part_num` is alpha-numeric part number uniquely identifying each part on Rebrickable. Referenced by [`part_relationships.child_part_num`](#part_relationships), [`part_relationships.parent_part_num`](#part_relationships), [`elements.part_num`](#elements), [`inventory_parts.part_num`](#inventory_parts), [`part_rels_resolved.child_part_num`](#part_relationships), [`part_rels_resolved.parent_part_num`](#part_relationships).
 
-Although uncommon, part numbers may also contain a dot ([75c23.75](https://rebrickable.com/parts/75c23.75/)) and a hyphen ([134916-740](https://rebrickable.com/parts/134916-740/)).
+Although uncommon, part numbers may also contain a dot ([`75c23.75`](https://rebrickable.com/parts/75c23.75/)) and a hyphen ([`134916-740`](https://rebrickable.com/parts/134916-740/)).
 
 `name` is the part name on Rebrickable.
 
@@ -182,7 +182,7 @@ Each row defines single relationship between two parts `child_part_num` and `par
 
 Example: `A,11954,62531`
 
-For [11954](https://rebrickable.com/parts/11954/) Rebrickable will say it is usable as alternate for the [62531](https://rebrickable.com/parts/62531/). And vice versa.
+For [`11954`](https://rebrickable.com/parts/11954/) Rebrickable will say it is usable as alternate for the [`62531`](https://rebrickable.com/parts/62531/). And vice versa.
 
 Rebrickable uses this relationship in the build matching option _"Consider alternate parts that can usually be used as replacements, but are not always functionally compatible."_
 
@@ -192,13 +192,13 @@ There will be no corresponding row `A,62531,11954` so this relationship should b
 
 Example: `B,6051,6051c04`
 
-[6051](https://rebrickable.com/parts/6051/) is a sub-part of [6051c04](https://rebrickable.com/parts/6051c04/).
+[`6051`](https://rebrickable.com/parts/6051/) is a sub-part of [`6051c04`](https://rebrickable.com/parts/6051c04/).
 
 ### `M` - Mold
 
 Example: `M,92950,3455`
 
-[92950](https://rebrickable.com/parts/92950/) and [3455](https://rebrickable.com/parts/3455/) are essentially the same parts where 92950 is a newer mold. For 3455 Rebrickable says it is superseded by 92950.
+[`92950`](https://rebrickable.com/parts/92950/) and [`3455`](https://rebrickable.com/parts/3455/) are essentially the same parts where 92950 is a newer mold. For 3455 Rebrickable says it is superseded by 92950.
 
 Rebrickable uses this relationship in the build matching option _"Ignore mold variations in parts."_
 
@@ -209,7 +209,7 @@ The successor part is not necessarily listed as `child_part_num`. And an older p
 3002a (1954, 1990) -> 3002 (1979, <present>)
 ```
 
-In case of multiple molds not all combinations are listed. For example, for parts [67695](https://rebrickable.com/parts/67695/), [93571](https://rebrickable.com/parts/93571/), [32174](https://rebrickable.com/parts/32174/) there are two rows:
+In case of multiple molds not all combinations are listed. For example, for parts [`67695`](https://rebrickable.com/parts/67695/), [`93571`](https://rebrickable.com/parts/93571/), [`32174`](https://rebrickable.com/parts/32174/) there are two rows:
 
 ```
 M,93571,32174
@@ -229,7 +229,7 @@ M,89652,60176
 
 Example: `P,4740pr0014,4740`
 
-[4740pr0014](https://rebrickable.com/parts/4740pr0014/) is a print of [4740](https://rebrickable.com/parts/4740/).
+[`4740pr0014`](https://rebrickable.com/parts/4740pr0014/) is a print of [`4740`](https://rebrickable.com/parts/4740/).
 
 Rebrickable uses this relationship along with relationship `T` in the build matching option _"Ignore printed and patterned part differences."_
 
@@ -237,7 +237,7 @@ Rebrickable uses this relationship along with relationship `T` in the build matc
 
 Example: `R,18947,35188`
 
-[18947](https://rebrickable.com/parts/18947/) pairs with [35188](https://rebrickable.com/parts/35188/). And vice versa.
+[`18947`](https://rebrickable.com/parts/18947/) pairs with [`35188`](https://rebrickable.com/parts/35188/). And vice versa.
 
 There will be no corresponding row `R,35188,18947` so this relationship should be considered bidirectional.
 
@@ -245,7 +245,7 @@ There will be no corresponding row `R,35188,18947` so this relationship should b
 
 Example: `T,19858pat0002,19858`
 
-[19858pat0002](https://rebrickable.com/parts/19858pat0002/) is a pattern of [19858](https://rebrickable.com/parts/19858/).
+[`19858pat0002`](https://rebrickable.com/parts/19858pat0002/) is a pattern of [`19858`](https://rebrickable.com/parts/19858/).
 
 Rebrickable uses this relationship along with relationship `P` in the build matching option _"Ignore printed and patterned part differences."_
 
@@ -511,7 +511,7 @@ Content of this table is generated using the rules defined in [`part_rels_extra_
 
 Relationships involving "common denominator" parts there can be summarized the following way:
 
-- for every print there will be non-printed part. For example, part [35074pr0003](https://rebrickable.com/parts/35074pr0003/) results in a row `P,35074pr0003,35074` even if part `35074` does not exist
+- for every print there will be non-printed part. For example, part [`35074pr0003`](https://rebrickable.com/parts/35074pr0003/) results in a row `P,35074pr0003,35074` even if part `35074` does not exist
 - the same is done for patterns but _after_ prints are removed. For example, for part [`100662pat0001pr0002`](https://rebrickable.com/parts/100662pat0001pr0002/) there will be rows `P,100662pat0001pr0002,100662pat0001` and `T,100662pat0001,100662` but not `P,100662pat0001pr0002,100662pr0002`. Also note that in the pattern row both parts do not actually exist
 - minifig torsos and legs, after prints and patterns are removed, are additionally listed as alternates to `973c00` and `970c00` when reasonable.
 
@@ -522,11 +522,11 @@ So `part_rels_extra` table complements both these tables. In other words, this u
 SELECT *
   FROM part_relationships
  WHERE rel_type NOT IN ('A', 'M')
- UNION
+ UNION ALL
 SELECT *
   FROM part_rels_resolved
  WHERE rel_type IN ('A', 'M')
- UNION
+ UNION ALL
 SELECT *
   FROM part_rels_extra
 ```

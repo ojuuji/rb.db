@@ -4,18 +4,18 @@ import os
 import re
 
 
-def process_part(part, rules, cur):
+def process_part(part_num, rules, cur):
     extra = []
 
     for rel_type, regex, repl in rules:
-        new_part = regex.sub(repl, part)
-        if new_part != part:
+        new_part_num = regex.sub(repl, part_num)
+        if new_part_num != part_num:
             table = 'part_rels_resolved' if rel_type in 'AM' else 'part_relationships'
-            cur.execute(f"SELECT * FROM {table} WHERE child_part_num = '{part}' " +
-                        "AND parent_part_num = '{new_part}' AND rel_type = '{rel_type}'")
+            cur.execute(f"SELECT * FROM {table} WHERE child_part_num = '{part_num}' " +
+                        f"AND parent_part_num = '{new_part_num}' AND rel_type = '{rel_type}'")
             if cur.fetchone() is None:
-                extra.append((rel_type, part, new_part))
-                extra.extend(process_part(new_part, rules, cur))
+                extra.append((rel_type, part_num, new_part_num))
+                extra.extend(process_part(new_part_num, rules, cur))
 
             break
 
@@ -42,7 +42,8 @@ def gen_part_rels_extra(conn):
     with closing(conn.cursor()) as cur:
         all_parts = [part for part, in cur.execute('SELECT part_num from parts')]
         for part in all_parts:
-            extra.extend(process_part(part, rules, cur))
+            local_extra = process_part(part, rules, cur)
+            extra.extend(e for e in local_extra if e not in extra)
 
     with conn, closing(conn.cursor()) as cur:
         cur.executemany('INSERT INTO part_rels_extra VALUES (?, ?, ?)', extra)
