@@ -7,7 +7,9 @@ import re
 def process_part(part_num, rules, cur):
     extra = []
 
-    for rel_type, regex, repl in rules:
+    for rel_type, regex, repl, exceptions in rules:
+        if exceptions is not None and re.fullmatch(exceptions, part_num):
+            continue
         new_part_num = regex.sub(repl, part_num)
         if new_part_num != part_num:
             table = 'part_rels_resolved' if rel_type in 'AM' else 'part_relationships'
@@ -33,10 +35,12 @@ def gen_part_rels_extra(conn):
             rule_line = rule_line.rstrip()
             if not ws.fullmatch(rule_line):
                 pieces = rule_line.split(rule_line[1])
-                if len(pieces) != 3:
+                if len(pieces) == 3:
+                    pieces.append(None)
+                if len(pieces) != 4:
                     raise ValueError(f"invalid rule: '{rule_line}'")
-                rel_type, pattern, repl = pieces
-                rules.append([rel_type, re.compile(f'^{pattern}$'), repl])
+                rel_type, pattern, repl, exceptions = pieces
+                rules.append([rel_type, re.compile(f'^{pattern}$'), repl, exceptions])
 
     extra = []
     with closing(conn.cursor()) as cur:

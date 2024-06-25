@@ -1,3 +1,4 @@
+import pytest
 import re
 
 SQL_RELS_UNION = '''
@@ -39,6 +40,20 @@ EXCEPT
 SELECT child_part_num
   FROM part_relationships
  WHERE rel_type = 'P'
+'''
+
+SQL_RELS_EXTRA_PRINTS_EXCEPT = '''
+SELECT c.part_num
+  FROM (SELECT part_num
+          FROM parts
+         WHERE part_num GLOB '*?pr[0-9]*'
+        EXCEPT
+        SELECT child_part_num
+          FROM part_relationships
+         WHERE rel_type = 'P'
+       ) c
+  JOIN parts p
+    ON p.part_num = substr(c.part_num, 1, instr(c.part_num, 'pr') - 1)
 '''
 
 
@@ -120,3 +135,31 @@ class TestCustomTables():
             'dupupn0013c02pr0001a'
         ]
         assert parts == expected
+
+    NON_PRINTS = [
+        '250pr0001',
+        '250pr0002',
+        '251pr0001',
+        '251pr0002',
+        '263pr0001',
+        '4jfig0003pr0001',  # it is marked as mold
+        '601pr0001',
+        '649pr0001HO',
+        '649pr0002HO',
+        '650pr0001',
+        '655pr0001',
+        '670pr0001',
+        '671pr0001'
+    ]
+
+    def test_rels_extra_rules_print_exceptions(self, rbdb):
+        parts = [part for part, in rbdb.execute(SQL_RELS_EXTRA_PRINTS_EXCEPT)]
+        assert parts == TestCustomTables.NON_PRINTS
+
+    @pytest.mark.parametrize('part_num', NON_PRINTS)
+    def test_rels_extra_has_no_prints_from_exceptions(self, rbdb, part_num):
+        rbdb.execute(f"SELECT count(*) FROM parts WHERE part_num = '{part_num}'")
+        assert (1,) == rbdb.fetchone()
+
+        rbdb.execute(f"SELECT count(*) FROM part_rels_extra WHERE child_part_num = '{part_num}'")
+        assert (0,) == rbdb.fetchone()

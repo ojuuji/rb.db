@@ -1,13 +1,14 @@
 # Format:
-# <rel_type><sep><child_part_num_regex><sep><parent_part_num_repl>
+# <rel_type><sep><child_part_num_regex><sep><parent_part_num_repl>[<sep><exceptions_regex>]
 # where <sep> is any character not appearing elsewhere on the line.
-# Relationship is applied only if regex matches an entire part number.
+# Relationship is applied only if <child_part_num_regex> matches an entire part
+# number and <exceptions_regex> does not match it or is omitted.
 # <parent_part_num_repl> may contain back references (\1, \2, ...).
 # For every part number rules are processed from the top to bottom. Processing
 # stops after first match. Extra part number then also processed the same way.
 
 # General rule for prints
-P,(.+)pr\d+[a-z]*,\1
+P,(.+)pr\d+[a-z]*,\1,25[01]pr000[12]|263pr0001|4jfig0003pr0001|601pr0001|65[05]pr0001|67[01]pr0001
 
 # General rule for patterns
 T,(.+)pats?\d+(c01)?,\1
