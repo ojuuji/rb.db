@@ -48,7 +48,8 @@ CREATE TABLE minifigs(
   fig_num TEXT PRIMARY KEY CHECK(fig_num GLOB 'fig-[0-9][0-9][0-9][0-9][0-9][0-9]'),
   name TEXT NOT NULL,
   num_parts INTEGER NOT NULL,
-  img_url TEXT NOT NULL CHECK(instr(img_url, 'https://cdn.rebrickable.com/media/sets/') == 1)
+  img_url TEXT NOT NULL,
+  CHECK(img_url = 'https://cdn.rebrickable.com/media/sets/' || fig_num || '.jpg')
 ) STRICT;
 
 CREATE TABLE sets(
@@ -58,7 +59,8 @@ CREATE TABLE sets(
   year INTEGER NOT NULL CHECK(year >= 1932 AND year <= 1 + CAST(strftime('%Y', CURRENT_TIMESTAMP) AS INTEGER)),
   theme_id INTEGER NOT NULL REFERENCES themes(id),
   num_parts INTEGER NOT NULL,
-  img_url TEXT NOT NULL CHECK(instr(img_url, 'https://cdn.rebrickable.com/media/sets/') == 1)
+  img_url TEXT NOT NULL,
+  CHECK(img_url = 'https://cdn.rebrickable.com/media/sets/' || lower(set_num) || '.jpg')
 ) STRICT;
 
 CREATE TABLE inventories(
