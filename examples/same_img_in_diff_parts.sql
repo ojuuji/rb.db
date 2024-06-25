@@ -7,7 +7,7 @@ SELECT datetime(value, 'unixepoch') 'DB version'
   FROM rb_db_lov
  WHERE key = 'data_timestamp';
 
--- Different parts (i.e. parts with different `part_num`) having the same image.
+-- Different parts (i.e. parts with different `part_num` regardless of color) having the same image.
 
 SELECT row_number() OVER () '#'
      , dense_rank() OVER (ORDER BY img_url) 'img#'

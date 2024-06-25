@@ -7,7 +7,7 @@ SELECT datetime(value, 'unixepoch') 'DB version'
   FROM rb_db_lov
  WHERE key = 'data_timestamp';
 
--- Printed parts which do not have image while plain parts in the same color has one.
+-- Printed parts, which do not have image, while their unprinted counterparts have them.
 
 SELECT row_number() OVER () '#'
      , set_num example_set_num

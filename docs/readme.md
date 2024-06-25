@@ -40,7 +40,7 @@ The main goal of `rb.db` is to provide original, unmodified tables from [Rebrick
 Releases are created automatically once a day, but only if there were actual changes since the last release.
 
 Retention policy:
-- git tag [`latest`]({{ site.github.repository_url }}/releases/tag/latest) is always recreated when releasing new version, so the link to the latest version is always the same
+- git tag [`latest`]({{ site.github.repository_url }}/releases/tag/latest) is always recreated when releasing new version, so the latest version link is permanent
 - git tag `latest-v<N>`, where `<N>` is the latest schema version, is also always recreated, and similar tags for older schemas are retained. The rationale is described in [`schema_version`](#schema_version) section
 - the last 10 releases are retained unconditionally
 - for older releases is retained the latest release of the month
@@ -304,11 +304,11 @@ Columns: `set_num` (text, primary key), `name` (text), `year` (integer), `theme_
 
 `name` is the set name on Rebrickable.
 
-`year` is the year when the set was released. Importance of this column is hard to overestimate. Years for the parts and colors are made using it. E.g. first year for the part is calculated as year of the set where this part was first used. And the part relationships, e.g. which part supersedes which, are also based on the part years.
+`year` is the year when the set was released. Fairly important column, as the usage years for the parts and colors are made using it. For example, a year, from which the part is used, is calculated as the year of a set where this part was used first. So, basically, if part+color combination is not available in any sets then it "does not exist". Because of this Rebrickable uses [Database Sets](https://rebrickable.com/sets/?theme=746) to avoid errors for parts which were not (yet) released within regular sets.
 
 `theme_id` is the set theme as a reference (foreign key) to [`themes.id`](#themes) column.
 
-`num_parts` is total number of parts in the set, including parts from minifigs, if it has any, but not including spare parts. For example, set [60428-1](https://rebrickable.com/sets/60428-1/) has 114 standard parts, two minifigs with 6 and 20 parts, and 8 spare parts. `num_parts` is `140=114+6+20`.
+`num_parts` is total number of parts in the set, including parts from minifigs if it has any, but not including spare parts. For example, set [60428-1](https://rebrickable.com/sets/60428-1/) has 114 standard parts, two minifigs with 6 and 20 parts, and 8 spare parts. `num_parts` is `140=114+6+20`.
 
 If the set includes other sets, for example [K4515-1](https://rebrickable.com/sets/K4515-1/), then parts from them are not counted in `num_parts` of the main set.
 
@@ -336,7 +336,7 @@ Columns: `inventory_id` (integer), `fig_num` (text), `quantity` (integer).
 
 `inventory_id` is a reference (foreign key) to [`inventories.id`](#inventories) column.
 
-It represents inventory, which includes this minifig, **not** the inventory of minifig itself. To get inventory of minifig use `SELECT id from inventories i WHERE i.set_num = '<fig_num_you_need>'`.
+It represents inventory, which includes this minifig, **not** the inventory of minifig itself. To get inventory of minifig use `SELECT id from inventories WHERE set_num = '<fig_num_you_need>'`.
 
 `fig_num` is a reference (foreign key) to [`minifigs.fig_num`](#minifigs).
 
@@ -352,7 +352,7 @@ Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `qua
 
 `color_id` is a reference (foreign key) to [`colors.id`](#colors) column.
 
-`quantity` is a number of combinations `part_num`+`color_id`+`is_spare` in this inventory.
+`quantity` is a number of combinations `part_num`+`color_id`+`is_spare` in this inventory. Note that for spare parts there will be separate rows in inventory.
 
 `is_spare` is a `0`/`1` flag indicating if this is a spare part.
 
@@ -360,7 +360,7 @@ Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `qua
 
 As for now, this `img_url` is the most reliable way to get an image URL for a given `part_num`+`color_id`, so `img_url` in [`part_color_stats`](#part_color_stats) and [`part_stats`](#part_stats) is based on it.
 
-However note that it includes image URLs of "similar parts" if part does not have image. On Rebrickable these images are displayed in inventories with ["Similar Image"](https://rebrickable.com/static/img/overlays/similar.png) overlay and a note in image title saying _"Exact image not available, using similar image from part `<similar_part_num>`"_.
+However note that it also includes image URLs of "similar parts" if part does not have image. On Rebrickable these images are displayed in inventories with ["Similar Image"](https://rebrickable.com/static/img/overlays/similar.png) overlay and a note in image title saying _"Exact image not available, using similar image from part `<similar_part_num>`"_.
 
 For [almost](examples/diff_img_in_same_part.txt) all parts their image URLs are the same across all inventories.
 
@@ -370,7 +370,7 @@ Columns: `inventory_id` (integer), `set_num` (text), `quantity` (integer).
 
 `inventory_id` is a reference (foreign key) to [`inventories.id`](#inventories) column.
 
-It represents inventory, which includes this set, **not** the inventory of the set itself. To get inventory of the set use `SELECT id from inventories i WHERE i.set_num = '<set_num_you_need>'`.
+It represents inventory, which includes this set, **not** the inventory of the set itself. To get inventory of the set use `SELECT id from inventories WHERE set_num = '<set_num_you_need>'`.
 
 `set_num` is a reference (foreign key) to [`sets.set_num`](#sets).
 
@@ -416,7 +416,7 @@ It is based on the colors order used in _"Your Colors"_ section on the part page
 
 Example:
 ```
-$ sqlite3 -csv rb.db "select id, name from colors natural join color_properties p order by p.sort_pos limit 10"
+$ sqlite3 -csv rb.db "select id, name from colors natural join color_properties order by sort_pos limit 10"
 -1,[Unknown]
 9999,"[No Color/Any Color]"
 15,White
@@ -486,10 +486,10 @@ As a result of processing it lists so-called _"resolved"_ relationships, which a
 - in case of molds resolve them the following way (read related details in [`M` - Mold](#m---mold) section):
   - always list the successor part as `parent_part_num`
   - use the final successor part for all molds, i.e. if there are molds A→B and A→C, and the final successor is C, table will have A→C and B→C
-  - as a successor use the part which either has greater last year, or greater first year, or the part that is referenced in more sets
+  - as a successor use the part, which is referenced in a newer set, or, if the newest sets have the same year, is referenced in an older set, or, if the oldest sets also have the same year, is referenced in more sets
 - in case of alternates:
   - first resolve molds for both `child_part_num` and `parent_part_num`
-  - as `parent_part_num` use part which either has greater last year, or the part that is referenced in more sets.
+  - as `parent_part_num` use the part, which is referenced in a newer set, or, if the newest sets have the same year, the part that is referenced in more sets.
 
 This way to resolve any `A`/`M` relationship it is enough to perform single lookup in this table. I.e. for any relationship `X` and part `Y` there will be either zero or one row `X,Y,Z` and no rows starting with `X,Z,` where `X` is either `A` or `M`.
 
@@ -499,11 +499,11 @@ Columns: `rel_type` (text), `child_part_num` (text), `parent_part_num` (text).
 
 This table defines extra relationships, not available on Rebrickable and maintained within `rb.db`.
 
-Rebrickable does not introduce fictive parts as "common denominators" for other parts. For example, [`35074pr0003`](https://rebrickable.com/parts/35074pr0003/) and [`35074pr0009`](https://rebrickable.com/parts/35074pr0009/) are clearly prints of the same part but unprinted part `35074` does not exist and thus is not listed in Rebrickable tables.
+Rebrickable does not use fictive parts as "common denominators" for other parts. For example, [`35074pr0003`](https://rebrickable.com/parts/35074pr0003/) and [`35074pr0009`](https://rebrickable.com/parts/35074pr0009/) are clearly prints of the same part but unprinted part `35074` does not exist and thus is not listed in Rebrickable tables.
 
-It is interesting that such parts actually exist on the site to some extent. For example, although [`35074`](https://rebrickable.com/parts/35074/) results in _"404 Page Not Found"_, this part is listed as print of [`35074pr0003`](https://rebrickable.com/parts/35074pr0003/) with _"INACTIVE"_ word, appended to its name, and with a note that _"This part is disabled and cannot be used."_.
+In fact such parts actually exist on Rebrickable to some extent. For example, although [`35074`](https://rebrickable.com/parts/35074/) results in _"404 Page Not Found"_, this part is listed as print of [`35074pr0003`](https://rebrickable.com/parts/35074pr0003/) with _"INACTIVE"_ word, appended to its title, and with a note that _"This part is disabled and cannot be used."_.
 
-There are exceptions though. For example, part [`973c00`](https://rebrickable.com/parts/973c00/) does not seem to exist and is only used as a related part for other parts.
+There are exceptions though. For example, part [`973c00`](https://rebrickable.com/parts/973c00/) does not seem to really exist nevertheless its details page is available on the site.
 
 So basically `part_rels_extra` table contains relationships, made using "common denominator" parts described above, and several extra alternates.
 
@@ -535,7 +535,7 @@ SELECT *
 
 Columns: `part_num` (text), `color_id` (integer), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer), `img_url` (text, nullable).
 
-This is a view based on the set inventories. It does not include parts which do not appear in the sets or in minifigs from the sets.
+This is a view based on the set inventories. It includes only parts which appear in the sets or in the set minifigs.
 
 `part_num` is a reference (foreign key) to [`parts.part_num`](#parts) column.
 
@@ -553,7 +553,7 @@ This is a view based on the set inventories. It does not include parts which do 
 
 Columns: `part_num` (text), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer), `img_url` (text, nullable).
 
-This is basically the same view as `part_color_stats` except that the stats for all part colors are combined together. It is not derivative of `part_color_stats` as you cannot calculate, for example, `part_stats.num_sets` using `part_color_stats.num_sets`.
+This is basically the same view as `part_color_stats` except that the stats for all part colors are combined together. It is not a derivative of `part_color_stats` as you cannot calculate, for example, `part_stats.num_sets` using `part_color_stats.num_sets`.
 
 A note about `img_url` here. Which image to choose when describing a part in general, not a part in specific color? Rebrickable chooses the part which has the largest number of the set parts, even if it is referenced not in the most sets. So does this view.
 
@@ -561,7 +561,7 @@ A note about `img_url` here. Which image to choose when describing a part in gen
 
 Columns: `color_id` (integer), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer).
 
-This is basically the same view as `part_color_stats` except that the stats for all part numbers are combined together. So read description of [`part_color_stats`](#part_color_stats) instead.
+This is basically the same view as `part_color_stats` except that the stats for all part numbers are combined together. So for detailed description read [`part_color_stats`](#part_color_stats) section.
 
 ## rb_db_lov
 

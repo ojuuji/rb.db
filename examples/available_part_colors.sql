@@ -15,7 +15,7 @@ SELECT datetime(value, 'unixepoch') 'DB version'
 .mode html
 .headers ON
 
--- Table like in "Available Colors" section on the part detail pages. Example shows available colors for part [`12939`](https://rebrickable.com/parts/12939/).
+-- Table like in "Available Colors" section on Rebrickable part detail pages. Example shows available colors for part [`12939`](https://rebrickable.com/parts/12939/).
 
 SELECT img_url '', name Color, num_parts 'Set Parts', num_sets 'Sets', min_year 'From', max_year 'To'
   FROM part_color_stats pcs
