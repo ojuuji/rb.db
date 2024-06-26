@@ -176,7 +176,9 @@ Columns: `rel_type` (text), `child_part_num` (text), `parent_part_num` (text).
 
 Each row defines single relationship between two parts `child_part_num` and `parent_part_num`, which both are references (foreign keys) to [`parts.part_num`](#parts) column.
 
-`rel_type` is a relationship type, defined by a single character, one of: `ABMPRT`. They all are described below.
+`rel_type` is a relationship type, defined by a single character, one of: `ABMPRT`. They all are described in the following sections.
+
+Neither `rel_type+child_part_num` nor `rel_type+parent_part_num` are unique across the table.
 
 ### `A` - Alternate
 

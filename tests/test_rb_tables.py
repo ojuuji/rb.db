@@ -23,6 +23,13 @@ SELECT max(chain_size)
   FROM rec
 '''
 
+SQL_NO_UNIQUE_RELS = '''
+SELECT *
+  FROM part_relationships
+ GROUP BY rel_type, ?
+HAVING count(*) = 1
+'''
+
 
 class TestRbTables():
     def test_minifigs_have_standard_parts(self, rbdb):
@@ -42,3 +49,9 @@ class TestRbTables():
 
     def test_max_themes_chain_size(self, rbdb):
         assert (3,) == rbdb.execute(SQL_MAX_THEMES_CHAIN_SIZE).fetchone()
+
+    def test_no_unique_child_rels(self, rbdb):
+        assert [] == rbdb.execute(SQL_NO_UNIQUE_RELS, ['child_part_num']).fetchall()
+
+    def test_no_unique_parent_rels(self, rbdb):
+        assert [] == rbdb.execute(SQL_NO_UNIQUE_RELS, ['parent_part_num']).fetchall()
