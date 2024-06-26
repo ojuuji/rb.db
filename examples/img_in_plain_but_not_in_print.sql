@@ -15,14 +15,16 @@ SELECT row_number() OVER () '#'
      , ip.color_id color_id
      , pip.part_num plain_part_num
      , pip.img_url img_url
-  FROM inventory_parts ip
-  JOIN inventories i
-    ON i.id = ip.inventory_id
+  FROM inventories i
+  JOIN inventory_parts ip
+    ON ip.inventory_id = i.id
+  JOIN part_relationships r
+    ON r.child_part_num = ip.part_num
+   AND r.rel_type = 'P'
   JOIN inventory_parts pip
-    ON substr(ip.part_num, 1, instr(ip.part_num, 'pr') - 1) = pip.part_num
-   AND ip.color_id = pip.color_id
+    ON pip.part_num = r.parent_part_num
+   AND pip.color_id = ip.color_id
  WHERE ip.img_url IS NULL
-   AND ip.part_num LIKE '%pr%'
    AND pip.img_url IS NOT NULL
  GROUP BY 3, 4, 5
  ORDER BY 3, 4, 5;
