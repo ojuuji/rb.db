@@ -29,4 +29,4 @@ SELECT id, ids_chain, names_chain, chain_size
   FROM rec
  ORDER BY names_chain COLLATE NOCASE;
 
-SELECT name, ids_chain, names_chain, chain_size FROM themes NATURAL JOIN theme_chains;
+SELECT * FROM theme_chains;
