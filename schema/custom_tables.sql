@@ -84,8 +84,14 @@ AS
        , min(year) min_year
        , max(year) max_year
        , sum(quantity) num_parts
-       , min(img_url) img_url
+       , t.img_url
     FROM ___set_parts_for_stats
+    JOIN (SELECT part_num, img_url
+            FROM part_color_stats
+           GROUP BY part_num
+          HAVING max(num_parts)
+         ) t
+   USING (part_num)
    GROUP BY 1;
 
 CREATE VIEW color_stats
