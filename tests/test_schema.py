@@ -30,6 +30,7 @@ class TestSchema():
         with closing(conn.cursor()) as cur:
             assert (0,) == cur.execute('SELECT count(*) FROM sqlite_master').fetchone()
 
+    @pytest.mark.custom_schema
     def test_custom_drop_leaves_nothing_custom(self, conn):
         self.executescript(conn, 'rb_tables')
         self.executescript(conn, 'rb_indexes')
@@ -46,6 +47,7 @@ class TestSchema():
 
         assert before == after
 
+    @pytest.mark.custom_schema
     def test_rb_and_custom_drop_leave_nothing(self, conn):
         self.executescript(conn, 'rb_tables')
         self.executescript(conn, 'rb_indexes')

@@ -57,6 +57,7 @@ SELECT c.part_num
 '''
 
 
+@pytest.mark.custom_schema
 class TestCustomTables():
     def test_rels_uniqueness(self, rbdb):
         rbdb.execute(f'SELECT count(*) FROM ({SQL_RELS_UNION})')

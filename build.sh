@@ -48,4 +48,10 @@ if [[ $# -eq 0 ]]; then
 	sqlite3 data/rb.db < schema/custom_indexes.sql
 fi
 
+echo ":: running tests ..."
+
+PYTEST_ARGS=(-q --pylama)
+[[ $# -ne 0 ]] && PYTEST_ARGS+=(-m 'not custom_schema')
+pytest "${PYTEST_ARGS[@]}"
+
 echo ":: done"
