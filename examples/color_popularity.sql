@@ -9,9 +9,7 @@ SELECT datetime(value, 'unixepoch') 'DB version'
 
 -- Use "color popularity" coefficient as total number of parts in this color per year normalized by color.
 
-DROP VIEW IF EXISTS color_popularity;
-
-CREATE VIEW color_popularity
+CREATE TEMPORARY VIEW color_popularity
 AS
   SELECT 1 + CAST(round(99.0 * log(max(num_parts) OVER (PARTITION BY year), num_parts)) AS INTEGER) popularity
        , *

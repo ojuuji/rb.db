@@ -12,5 +12,5 @@ for SRC in "$SRCDIR"/*.sql; do
 	echo ":: processing $NAME ..."
 
 	cp -f "$SRC" "$OUTDIR"
-	(cd "$OUTDIR" && sqlite3 ../../data/rb.db < "$NAME")
+	(cd "$OUTDIR" && sqlite3 -readonly ../../data/rb.db < "$NAME")
 done
