@@ -1,4 +1,4 @@
---.output printed_part_num_suffixes.txt
+.output printed_part_num_suffixes.txt
 .echo ON
 .bail ON
 .mode table --wrap 0
