@@ -362,7 +362,9 @@ Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `qua
 
 As for now, this `img_url` is the most reliable way to get an image URL for a given `part_num`+`color_id`, so `img_url` in [`part_color_stats`](#part_color_stats) and [`part_stats`](#part_stats) is based on it.
 
-However note that it also includes image URLs of "similar parts" if part does not have image. On Rebrickable these images are displayed in inventories with ["Similar Image"](https://rebrickable.com/static/img/overlays/similar.png) overlay and a note in image title saying _"Exact image not available, using similar image from part `<similar_part_num>`"_.
+However note that if part does not have image, Rebrickable uses part images in other colors or, if there are none, it may use images of similar parts (e.g. molds or plain parts for prints). There are no way to know in Rebrickable tables if image is canonical, or it is from other part color, or from a similar part.
+
+On Rebrickable similar part images in inventories are marked with ["Similar Image"](https://rebrickable.com/static/img/overlays/similar.png) overlay and a note in image title saying _"Exact image not available, using similar image from part `<similar_part_num>`"_. Part images in other colors are not marked.
 
 For [almost](examples/diff_img_in_same_part.txt) all parts their image URLs are the same across all inventories.
 
