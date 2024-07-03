@@ -1,7 +1,7 @@
 .output colors_map.json
 .bail ON
 
--- JSON array of colors in form `[<id>,{"name":"<name>","sortPos":<sort_pos>}]` suitable for JS Map constructor.
+-- Colors as JSON array of pairs `<id>,{"name":"<name>","sortPos":<sort_pos>}` suitable for JS Map constructor.
 
 SELECT json_group_array(
          json_array(
