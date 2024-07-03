@@ -1,3 +1,6 @@
+<!--
+DB version: {{db_version}}
+-->
 <!DOCTYPE html>
 <head>
 <title>Delta E Chart for Rebrickable Colors</title>
@@ -15,18 +18,30 @@
 }
 .color {
 	font-family: 'Courier New', Courier, monospace;
+	color: black;
+}
+.color.dark {
+	color: white;
+}
+a:hover, a:visited, a:link, a:active {
+	text-decoration: none;
 }
 </style>
 <body>
 <div id="chart"></div>
 <script>
+	const colorUrl = id => `https://rebrickable.com/colors/${id}/`;
+	const colors = new Map({{colors}});
 	const data = {{deltas}};
-	const rendered = data.map(([delta_e, rgb1, rgb2]) => {
+	const rendered = data.map(([delta_e, id1, id2]) => {
+		const [name1, rgb1, is_dark1] = colors.get(id1);
+		const [name2, rgb2, is_dark2] = colors.get(id2);
+
 		return `
 <div>
 	<div class="delta">${delta_e}</div>
-	<div class="color" style="background:#${rgb1}">${rgb1}</div>
-	<div class="color" style="background:#${rgb2}">${rgb2}</div>
+	<a target="_blank" href="${colorUrl(id1)}" title="${name1}"><div class="color${is_dark1 ? ' dark' : ''}" style="background:#${rgb1}">${rgb1}</div></a>
+	<a target="_blank" href="${colorUrl(id2)}" title="${name2}"><div class="color${is_dark2 ? ' dark' : ''}" style="background:#${rgb2}">${rgb2}</div></a>
 </div>`;
 	}).join('');
 	document.getElementById('chart').innerHTML = rendered;
