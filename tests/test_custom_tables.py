@@ -117,11 +117,13 @@ class TestCustomTables():
 
     def test_rels_extra_rules_prints(self, rbdb):
         rbdb.execute(SQL_RELS_EXTRA_PRINTS)
-        regex = re.compile(r'.+pr\d+')
-        parts = [part for part, in rbdb if not regex.fullmatch(part)]
+        prints_regex = re.compile(r'.+pr\d+')
+        parts = [part for part, in rbdb if not prints_regex.fullmatch(part)]
+        extra_regex = re.compile(r'(.+)pr\d+(a|kc|c01)')  # "General rule for prints"
+        nonprints = [part for part in parts if not extra_regex.fullmatch(part)]
         expected = [
             # Every part_num below is a valid print if not stated otherwise. Basing on valid
-            # prints this rel is sufficient (case-sensitive): P,(.+)pr\d+[a-z]*,$1
+            # prints the case-sensitive extra_regex rule is sufficient
             '35499pr0032a',
             '4555c02pr0001a',
             '649pr0001HO',  # not a print
@@ -133,9 +135,15 @@ class TestCustomTables():
             '75121pr0002a',
             '75121pr0005a',
             '93088pr0002kc',
+            '93088pr0008c01',
             'dupupn0013c02pr0001a'
         ]
+        expected_nonprints = [
+            '649pr0001HO',
+            '649pr0002HO'
+        ]
         assert parts == expected
+        assert nonprints == expected_nonprints
 
     NON_PRINTS = [
         '250pr0001',

@@ -8,7 +8,7 @@
 # stops after first match. Extra part number then also processed the same way.
 
 # General rule for prints
-P,(.+)pr\d+[a-z]*,\1,25[01]pr000[12]|263pr0001|4jfig0003pr0001|601pr0001|65[05]pr0001|67[01]pr0001
+P,(.+)pr\d+(a|kc|c01),\1,25[01]pr000[12]|263pr0001|4jfig0003pr0001|601pr0001|65[05]pr0001|67[01]pr0001
 
 # General rule for patterns
 T,(.+)pats?\d+(c01)?,\1
