@@ -107,8 +107,8 @@ class TestCustomTables():
             '16709pats27',
             '16709pats37',
             '16709pats41',
-            '64784pat01c01',
-            '64784pat02c01',
+            '64784pat0001c01',
+            '64784pat0002c01',
 
             # None - not a pattern
             'Eyepatch'
