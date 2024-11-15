@@ -6,8 +6,8 @@ import sys
 
 def preprocess_value(key, value):
     if key.startswith('is_'):
-        if value in 'tf':
-            return 1 if value == 't' else 0
+        if value == 'True' or value == 'False':
+            return 1 if value == 'True' else 0
         raise ValueError(f"unexpected value ('{value}') for key '{key}'")
 
     return None if value == '' else value

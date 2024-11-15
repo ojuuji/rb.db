@@ -55,7 +55,7 @@ For Rebrickable tables the main rule is to import them as-is, without adding/rem
 
 CSV format, in which original Rebrickable tables are provided, cannot include types information for the stored data. Therefore column data types, used by the schema, are determined basing on the column content and SQLite3 specifics:
 - use only `INTEGER` and `TEXT` to avoid possible confusion, as the data types like `VARCHAR(N)` do not really imply any constraints in SQLite ([docs](https://www.sqlite.org/datatype3.html)). Rigid typing allows only a few data types, so this was (fortunately) not much of a choice
-- use `INTEGER` values `0` and `1` for boolean columns. Original tables store single `t`/`f` characters (_"true"_/_"false"_) but in context of the schema `0`/`1` are more appropriate as they allow to use natural conditions like `WHERE is_trans`/`WHERE NOT is_trans`
+- use `INTEGER` values `0` and `1` for boolean columns. Original tables store words `True`/`False` (or, before 14-Nov-2024, single `t`/`f` characters), but in context of the schema `0`/`1` are more appropriate as they allow to use natural conditions like `WHERE is_trans`/`WHERE NOT is_trans`
 - use `INTEGER` for columns containing id, year, quantity. The rest of columns are clearly text so it was not a hard guess
 - CSV has no concept of `NULL` values whereas all missing values in the Rebrickable tables semantically mean `NULL` and thus are imported this way in `rb.db`
 
