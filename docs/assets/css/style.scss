@@ -11,6 +11,10 @@ header {
   font-size: 2em;
 }
 
+summary {
+  margin-bottom: 16px;
+}
+
 .download-release {
   font-family: $mono-font;
   border-bottom: 1px solid lighten($gray-200, 3%);
