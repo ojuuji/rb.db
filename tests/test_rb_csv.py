@@ -5,7 +5,7 @@ import pytest
 
 class TestCsv():
     @pytest.mark.parametrize('table, headers', [
-        ('colors', 'id,name,rgb,is_trans'),
+        ('colors', 'id,name,rgb,is_trans,num_parts,num_sets,y1,y2'),
         ('elements', 'element_id,part_num,color_id,design_id'),
         ('inventories', 'id,version,set_num'),
         ('inventory_minifigs', 'inventory_id,fig_num,quantity'),
