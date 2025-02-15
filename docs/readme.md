@@ -73,15 +73,27 @@ This is why the import scripts import tables directly instead of relying on `.im
 
 ## Changelog
 
-Current [schema version](#rb_db_lov) is **7**. List of changes for each schema version:
+Current [schema version](#rb_db_lov) is **7**.
 
-1. added table [`rb_db_lov`](#rb_db_lov)
-2. renamed column `color_properties.color_id` to [`color_properties.id`](#color_properties) as this is complementary table
-3. added table [`part_rels_extra`](#part_rels_extra)
-4. changed column types to `integer (0/1)` for [`color.is_trans`](#color) and [`inventory_parts.is_spare`](#inventory_parts)
-5. added column [`color_properties.is_grayscale`](#color_properties)
-6. added views [`part_color_stats`](#part_color_stats), [`part_stats`](#part_stats), [`part_color_images`](#part_color_images), [`part_images`](#part_images)
-7. added view [`color_stats`](#color_stats) and merged views `part_[color_]images` with `part_[color_]stats`
+Last modified on 22-Jun-2024: added view [`color_stats`](#color_stats) and merged views `part_[color_]images` with `part_[color_]stats`.
+
+<details>
+
+<summary>Older changes</summary>
+
+<p>v6: added views <code><a href="#part_color_stats">part_color_stats</a></code>, <code><a href="#part_stats">part_stats</a></code>, <code><a href="#part_color_images">part_color_images</a></code>, <code><a href="#part_images">part_images</a></code>.</p>
+
+<p>v5: added column <code><a href="#color_properties">color_properties.is_grayscale</a></code>.</p>
+
+<p>v4: changed column types to <code>integer (0/1)</code> for <code><a href="#colors">colors.is_trans</a></code> and <code><a href="#inventory_parts">inventory_parts.is_spare</a></code>.</p>
+
+<p>v3: added table <code><a href="#part_rels_extra">part_rels_extra</a></code>.</p>
+
+<p>v2: renamed column <code>color_properties.color_id</code> to <code><a href="#color_properties">color_properties.id</a></code> as this is complementary table.</p>
+
+<p>v1: added table <code><a href="#rb_db_lov">rb_db_lov</a></code>.</p>
+
+</details>
 
 ## Diagram
 
@@ -356,7 +368,7 @@ Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `qua
 
 `quantity` is a number of combinations `part_num`+`color_id`+`is_spare` in this inventory. Note that for spare parts there will be separate rows in inventory.
 
-`is_spare` is a `0`/`1` flag indicating if this is a spare part.
+`is_spare` is a `0`/`1` flag indicating if this is a spare part. Currently minifig inventories never have spare parts. Only the set inventories may have spare parts, including spare parts for minifigs from these sets. Thus, a situation is possible when the set inventory contains spare part that is unique to this inventory (i.e. it is only used in minifig which has its own inventory).
 
 `img_url` is the part image URL. When not `NULL` it always starts with `'https://cdn.rebrickable.com/media/parts/'`.
 
