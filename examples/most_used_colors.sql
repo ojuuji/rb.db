@@ -20,7 +20,7 @@ SELECT name
      , row_number() OVER (ORDER BY num_sets DESC, num_parts DESC) 'ns#'
      , printf('%.*c', 1 + round(log(1.3, num_sets) * 49.0 / max_num_sets), '■') num_sets_bar
   FROM color_stats
-  JOIN colors c
+  JOIN (SELECT id, name FROM colors) c
     ON c.id = color_stats.color_id
  CROSS JOIN (SELECT max(log(1.3, num_sets)) max_num_sets FROM color_stats)
  CROSS JOIN (SELECT max(log(1.4, num_parts)) max_num_parts FROM color_stats)

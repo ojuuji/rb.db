@@ -38,9 +38,6 @@ def store_table(name, conn, rows):
 def import_table(name, conn):
     print(f":: importing {name} ...", flush=True)
     rows = read_table(name)
-    if name == 'colors':
-        for row in rows:
-            del row['num_parts'], row['num_sets'], row['y1'], row['y2']
     store_table(name, conn, rows)
 
 

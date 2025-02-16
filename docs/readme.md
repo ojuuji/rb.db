@@ -74,13 +74,15 @@ This is why the import scripts import tables directly instead of relying on `.im
 
 ## Changelog
 
-Current [schema version](#rb_db_lov) is **7**.
+Current [schema version](#rb_db_lov) is **8**.
 
-Last modified on 22-Jun-2024: added view [`color_stats`](#color_stats) and merged views `part_[color_]images` with `part_[color_]stats`.
+Last modified on 16-Feb-2025 due to a change in Rebrickable tables: four new columns (`num_parts`, `num_sets`, `y1`, `y2`) were added to the [`colors`](#colors) table.
 
 <details>
 
 <summary>Older changes</summary>
+
+<p>v7: [22-Jun-2024] added view <code><a href="#color_stats">color_stats</a></code> and merged views <code>part_[color_]images</code> with <code>part_[color_]stats</code>.</p>
 
 <p>v6: added views <code><a href="#part_color_stats">part_color_stats</a></code>, <code><a href="#part_stats">part_stats</a></code>, <code><a href="#part_color_images">part_color_images</a></code>, <code><a href="#part_images">part_images</a></code>.</p>
 
@@ -106,7 +108,7 @@ Last modified on 22-Jun-2024: added view [`color_stats`](#color_stats) and merge
 
 This table contains the [part colors](https://rebrickable.com/colors/).
 
-Columns: `id` (integer, primary key), `name` (text), `rgb` (text), `is_trans` (integer).
+Columns: `id` (integer, primary key), `name` (text), `rgb` (text), `is_trans` (integer), `num_parts` (integer), `num_sets` (integer), `y1` (integer, nullable), `y2` (integer, nullable).
 
 `id` is a number, unique for each color. Referenced by [`inventory_parts.color_id`](#inventory_parts), [`elements.color_id`](#elements), [`color_properties.id`](#color_properties), [`similar_color_ids.ref_id`](#similar_colors), [`similar_color_ids.id`](#similar_colors).
 
@@ -116,12 +118,29 @@ Columns: `id` (integer, primary key), `name` (text), `rgb` (text), `is_trans` (i
 
 `is_trans` is a `0`/`1` flag indicating if color is transparent.
 
+`num_sets` is a number of sets containing parts in this color. This is "Num Sets" column on the [part colors](https://rebrickable.com/colors/) page. As for now it seems to have duplicate sets (one set per each unique combination of part and color, not just per color), see [output](examples/color_stats_diff.txt) of the "Stats difference in `colors` table" [example](#examples).
+
+`min_year` is the year of the set where this color was first used for the parts. This is "First Year" column on the [part colors](https://rebrickable.com/colors/) page.
+
+`max_year` is the year of the set where parts in this color were last seen. This is "Last Year" column on the [part colors](https://rebrickable.com/colors/) page.
+
+`num_parts` is total number of these parts in this color across all sets. This is "Num Parts" column on the [part colors](https://rebrickable.com/colors/) page.
+
+As for the last four columns, from DB architecture point of view it might be strange to have stats in fundamental `colors` table. (sigh) Well, it helps to think that the original CSV tables aim to be convenient for the users, not to keep some purity of the DB schema.
+
+In case you have "ambiguous column name" errors when joining colors table because of these stats fields, as an option to keep surrounding query unchanged, you can use subquery `(SELECT id, name, rgb, is_trans FROM colors)` in place of `colors` table. Or, depending on the context, a shorter list of columns, for example, `JOIN colors c` → `JOIN (SELECT id, name FROM colors) c`.
+
+You may also take a look at [`color_stats`](#color_stats) table, which contains the same stats, but derived from other tables. In case you need similar stats for parts, take a look at [`part_color_stats`](#part_color_stats) and [`part_stats`](#part_stats).
+
 Example:
 
 ```
-$ sqlite3 rb.db "select * from colors group by is_trans"
--1|[Unknown]|0033B2|0
-32|Trans-Black IR Lens|635F52|1
+$ sqlite3 -header -column rb.db "select is_trans, count(*) from colors group by is_trans union select 'total', count(*) from colors"
+is_trans  count(*)
+--------  -----
+0         222
+1         45
+total     267
 ```
 
 ## themes
@@ -189,7 +208,7 @@ Columns: `rel_type` (text), `child_part_num` (text), `parent_part_num` (text).
 
 Each row defines single relationship between two parts `child_part_num` and `parent_part_num`, which both are references (foreign keys) to [`parts.part_num`](#parts) column.
 
-`rel_type` is a relationship type, defined by a single character, one of: `ABMPRT`. They all are described in the following sections.
+`rel_type` is a relationship type, defined by a single character, one of `A`, `B`, `M`, `P`, `R`, `T`. They all are described in the following sections.
 
 Neither `rel_type+child_part_num` nor `rel_type+parent_part_num` are unique across the table.
 
@@ -615,15 +634,17 @@ Columns: `color_id` (integer), `num_sets` (integer), `min_year` (integer), `max_
 
 This view contains statistics for all colors used in really existing parts. Read [Stats Tables](#stats-tables) for general considerations.
 
-`num_sets` is a number of sets containing parts in this color. Corresponding stat on Rebrickable is "Num Sets" column on the [part colors](https://rebrickable.com/colors/) page.
+`num_sets` is a number of sets containing parts in this color. There is no corresponding stat on Rebrickable, as the "Num Sets" column on the [part colors](https://rebrickable.com/colors/) page seems to calculate different thing (read [`colors.num_sets`](#colors) description for details).
 
-`min_year` is the year of the set where any part in this color was first introduced. Corresponding stat on Rebrickable is "First Year" column on the [part colors](https://rebrickable.com/colors/) page.
+`min_year` is the year of the set where this color was first used for the parts. Corresponding stat on Rebrickable is "First Year" column on the [part colors](https://rebrickable.com/colors/) page.
 
-`max_year` is the year of the set where any part in this color was last seen. Corresponding stat on Rebrickable is "Last Year" column on the [part colors](https://rebrickable.com/colors/) page.
+`max_year` is the year of the set where parts in this color were last seen. Corresponding stat on Rebrickable is "Last Year" column on the [part colors](https://rebrickable.com/colors/) page.
 
 `num_parts` is total number of these parts in this color across all sets. Corresponding stat on Rebrickable is "Num Parts" column on the [part colors](https://rebrickable.com/colors/) page.
 
-Stats here and on the [part colors](https://rebrickable.com/colors/) page may differ. How they are calculated here is described in [Stats Tables](#stats-tables) section. How they are calculated on Rebrickable is unspecified.
+The reason why this view has the same columns as the original [`colors`](#colors) table is that it was introduced before corresponding columns were added to the `colors` table.
+
+`num_parts` here and in the [`colors`](#colors) table may differ (see detailed table in the [output](examples/color_stats_diff.txt) of the "Stats difference in `colors` table" [example](#examples)). How they are calculated here is described in [Stats Tables](#stats-tables) section. How they are calculated on Rebrickable is unspecified.
 
 ## rb_db_lov
 

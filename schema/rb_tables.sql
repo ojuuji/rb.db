@@ -9,7 +9,12 @@ CREATE TABLE colors(
   name TEXT NOT NULL,
   -- rgb consists of six hex digits
   rgb TEXT NOT NULL CHECK(length(rgb) == 6 AND NOT rgb GLOB '*[^0-9A-Fa-f]*'),
-  is_trans INTEGER NOT NULL CHECK(is_trans IN (0, 1))
+  is_trans INTEGER NOT NULL CHECK(is_trans IN (0, 1)),
+  num_parts INTEGER NOT NULL,
+  num_sets INTEGER NOT NULL,
+  y1 INTEGER CHECK(y1 >= 1932 AND y1 <= 1 + CAST(strftime('%Y', CURRENT_TIMESTAMP) AS INTEGER)),
+  y2 INTEGER CHECK(y2 >= 1932 AND y2 <= 1 + CAST(strftime('%Y', CURRENT_TIMESTAMP) AS INTEGER)),
+  CHECK (y1 IS NULL AND y2 IS NULL OR y1 IS NOT NULL AND y2 IS NOT NULL AND y1 <= y2)
 ) STRICT;
 
 CREATE TABLE themes(

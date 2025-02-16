@@ -21,7 +21,7 @@ CREATE TEMPORARY VIEW available_part_colors
 AS
   SELECT part_num, name, num_sets, min_year, max_year, num_parts, img_url
     FROM part_color_stats pcs
-    JOIN colors c
+    JOIN (SELECT id, name FROM colors) c
       ON c.id = pcs.color_id
     JOIN color_properties cp
       ON cp.id = c.id

@@ -17,7 +17,9 @@ AS
             FROM ___set_parts_for_stats
            GROUP BY color_id, year
          )
-    JOIN colors c
+    JOIN (SELECT id, name
+            FROM colors
+         ) c
       ON c.id = color_id;
 
 -- Print it for all colors in 2018.
