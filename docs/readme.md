@@ -27,6 +27,7 @@
   - [similar_colors](#similar_colors)
   - [part_rels_resolved](#part_rels_resolved)
   - [part_rels_extra](#part_rels_extra)
+  - [Stats Tables](#stats-tables)
   - [part_color_stats](#part_color_stats)
   - [part_stats](#part_stats)
   - [color_stats](#color_stats)
@@ -547,21 +548,46 @@ SELECT *
   FROM part_rels_extra
 ```
 
+## Stats Tables
+
+The following three sections describe `part_color_stats`, `part_stats`, and `color_stats` tables. This section covers general considerations for all these tables.
+
+When calculating number of the set parts, Rebrickable includes parts from the set inventory, parts from the set minifigs, and does not include spare parts. For example, [60063-1](https://rebrickable.com/sets/60063-1/) states there are 218 parts in total. Inventory lists 189 parts and 7 minifigs. Remaining 29 parts (218-189=29) belong to these 7 minifigs. 27 spare parts are not counted.
+
+In case of [super sets](https://rebrickable.com/help/sets-types/) inventories from included sets are not considered. For example, [K10194-1](https://rebrickable.com/sets/K10194-1/), which has 8 sets, has 0 parts in total.
+
+The same considerations are used for `num_sets` and `num_parts` columns in the stats tables:
+- super sets never affect both these columns
+- when calculating number of sets, minifig parts are treated as parts of the set. I.e. no matter if part/color combination is included in one or more of the set minifigs and/or in the set inventory, `num_sets` for this part/color is always incremented by one
+- when calculating number of parts, stats tables use "flattened" set inventory. This is a union of the set inventory parts and all inventory parts of the set minifigs, and does not include spare parts. I.e. the same that Rebrickable does when calculating total number of the set parts, as described in the example above.
+
+Additionally worth mentioning sets with multiple inventory versions. On Rebrickable it is not like only the latest version is valid. All versions are valid. Yet difference may be very subtle. For example, in [42114-1](https://rebrickable.com/sets/42114-1/) inventories v1 and v2 differ in only one part out of 2193 parts.
+
+In this case, for the stats purpose, `rb.db` takes the following approach. Additional inventory versions do not increase number of sets. And in calculating number of parts is used union of flattened set inventories from all inventory versions with duplicates removed. If different versions of flattened inventories have different number of parts for particular part/color combination, the larger one is used.
+
+About the year in the stats. On Rebrickable particular combination of a part and color is considered to really exist only if it is included in the sets. And then the years of the sets is what actually defines part years on Rebrickable. The same is done in the stats tables here.
+
+By the way, since particular combination of the part and color only goes "live" when it is included in a set, for parts, which are known to exist, but are not included in any real world sets, Rebrickable uses [Database Sets](https://rebrickable.com/sets/?theme=746&include_accessory=on).
+
 ## part_color_stats
 
 Columns: `part_num` (text), `color_id` (integer), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer), `img_url` (text, nullable).
 
-This is a view based on the set inventories. It includes only parts which appear in the sets or in the set minifigs.
+This view contains statistics for all really existing combinations of the parts and colors. Read [Stats Tables](#stats-tables) for general considerations.
 
 `part_num` is a reference (foreign key) to [`parts.part_num`](#parts) column.
 
 `color_id` is a reference (foreign key) to [`colors.id`](#colors) column.
 
-`num_sets` is a number of sets which include this part/color either as standard part or as minifig part.
+Together `part_num` and `color_id` represent combination of the part and color for which this row provides statistics.
 
-`min_year`/`max_year` are minimum/maximum years of these sets.
+`num_sets` is a number of sets containing this part in this color. Corresponding stat on Rebrickable is "Sets" column in "Available Colors" group on the part detail pages.
 
-`num_parts` is total number of these part/color in the set inventory and all its minifigs, but not including spare parts. This is how Rebrickable counts "Num Set Parts" stat on the part detail pages.
+`min_year` is the year of the set where this part in this color was first introduced. Corresponding stat on Rebrickable is "From" column in "Available Colors" group on the part detail pages.
+
+`max_year` is the year of the set where this part in this color was last seen. Corresponding stat on Rebrickable is "To" column in "Available Colors" group on the part detail pages.
+
+`num_parts` is total number of these parts in this color across all sets. Corresponding stat on Rebrickable is "Set Parts" column in "Available Colors" group on the part detail pages.
 
 `img_url` is an image URL for the part/color. It is based on [`inventory_parts`](#inventory_parts) table (read notes about `img_url` there). `part_color_stats` has only one row per part/color, so when choosing which image to use it follows this priority: `element` → `ldraw` → `photo` → `NULL` (but there are actually almost no parts with multiple image URLs).
 
@@ -569,15 +595,35 @@ This is a view based on the set inventories. It includes only parts which appear
 
 Columns: `part_num` (text), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer), `img_url` (text, nullable).
 
-This is basically the same view as `part_color_stats` except that the stats for all part colors are combined together. It is not a derivative of `part_color_stats` as you cannot calculate, for example, `part_stats.num_sets` using `part_color_stats.num_sets`.
+This view contains statistics for all really existing parts. Read [Stats Tables](#stats-tables) for general considerations.
 
-A note about `img_url` here. Which image to choose when describing a part in general, not a part in specific color? Rebrickable chooses the part which has the largest number of the set parts, even if it is referenced not in the most sets. So does this view.
+It is similar to `part_color_stats`, but the stats for all part colors are combined together. Note, it is not a derivative of `part_color_stats`, as you cannot calculate, for example, `part_stats.num_sets` using `part_color_stats.num_sets`.
+
+`part_num` is a reference (foreign key) to [`parts.part_num`](#parts) column.
+
+`num_sets` is a number of sets containing this part. Corresponding stat on Rebrickable is "Num Sets" on the part detail pages.
+
+`min_year` and `max_year` are the years of the sets where this part was first introduced and last seen, respectively. Corresponding stat on Rebrickable is "Year" on the part detail pages in form "`<min_year>` to `<max_year>`".
+
+`num_parts` is total number of these parts across all sets. Corresponding stat on Rebrickable is "Num Set Parts" on the part detail pages.
+
+`img_url` is an image URL for the part. When selecting image URL for the part in general, not for the part in specific color, Rebrickable chooses the part, which has the largest number of the set parts, even if it is referenced not in the most sets. The same is done here for `img_url`. Also read how `img_url` for particular part_num/color combination is selected in [`part_color_stats`](#part_color_stats) description.
 
 ## color_stats
 
 Columns: `color_id` (integer), `num_sets` (integer), `min_year` (integer), `max_year` (integer), `num_parts` (integer).
 
-This is basically the same view as `part_color_stats` except that the stats for all part numbers are combined together. So for detailed description read [`part_color_stats`](#part_color_stats) section.
+This view contains statistics for all colors used in really existing parts. Read [Stats Tables](#stats-tables) for general considerations.
+
+`num_sets` is a number of sets containing parts in this color. Corresponding stat on Rebrickable is "Num Sets" column on the [part colors](https://rebrickable.com/colors/) page.
+
+`min_year` is the year of the set where any part in this color was first introduced. Corresponding stat on Rebrickable is "First Year" column on the [part colors](https://rebrickable.com/colors/) page.
+
+`max_year` is the year of the set where any part in this color was last seen. Corresponding stat on Rebrickable is "Last Year" column on the [part colors](https://rebrickable.com/colors/) page.
+
+`num_parts` is total number of these parts in this color across all sets. Corresponding stat on Rebrickable is "Num Parts" column on the [part colors](https://rebrickable.com/colors/) page.
+
+Stats here and on the [part colors](https://rebrickable.com/colors/) page may differ. How they are calculated here is described in [Stats Tables](#stats-tables) section. How they are calculated on Rebrickable is unspecified.
 
 ## rb_db_lov
 

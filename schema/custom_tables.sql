@@ -44,13 +44,14 @@ AS
          )
        , set_parts
       AS (    -- parts from sets
-          SELECT set_num, version, year, part_num, color_id, quantity, is_spare, img_url
+          SELECT set_num, version, year, part_num, color_id, quantity, img_url, '' fig_num
             FROM set_inventories
             JOIN inventory_parts
            USING (inventory_id)
+           WHERE NOT is_spare
            UNION ALL
               -- parts from minifigs
-          SELECT si.set_num, si.version, year, part_num, color_id, (im.quantity * ip.quantity) quantity, is_spare, img_url
+          SELECT si.set_num, si.version, year, part_num, color_id, (im.quantity * ip.quantity) quantity, img_url, im.fig_num
             FROM set_inventories si
             JOIN inventory_minifigs im
            USING (inventory_id)
@@ -59,11 +60,14 @@ AS
             JOIN inventory_parts ip
               ON ip.inventory_id = i.id
          )
-  SELECT *
-    FROM set_parts
-   WHERE NOT is_spare
-   GROUP BY set_num, part_num, color_id
-  HAVING max(version);
+       , flattened_set_parts
+      AS (SELECT set_num, version, year, part_num, color_id, sum(quantity) quantity, min(img_url) img_url
+            FROM set_parts
+           GROUP BY set_num, version, part_num, color_id
+         )
+  SELECT set_num, year, part_num, color_id, max(quantity) quantity, min(img_url) img_url
+    FROM flattened_set_parts
+   GROUP BY set_num, part_num, color_id;
 
 CREATE VIEW part_color_stats
 AS
