@@ -7,7 +7,7 @@ SELECT datetime(value, 'unixepoch') 'DB version'
   FROM rb_db_lov
  WHERE key = 'data_timestamp';
 
--- Stats difference in `colors` table ('c.'), `color_stats` view ('cs.') and `part_color_stats` view ('pcs.').
+-- Stats difference in `colors` table (`'c.'`), `color_stats` view (`'cs.'`) and `part_color_stats` view (`'pcs.'`).
 
 SELECT id
      , name

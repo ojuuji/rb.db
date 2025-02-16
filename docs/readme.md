@@ -126,7 +126,7 @@ Columns: `id` (integer, primary key), `name` (text), `rgb` (text), `is_trans` (i
 
 `num_parts` is total number of these parts in this color across all sets. This is "Num Parts" column on the [part colors](https://rebrickable.com/colors/) page.
 
-As for the last four columns, from DB architecture point of view it might be strange to have stats in fundamental `colors` table. (sigh) Well, it helps to think that the original CSV tables aim to be convenient for the users, not to keep some purity of the DB schema.
+As for the last four columns, from database architecture point of view it might be strange to have stats in fundamental `colors` table. (sigh) Well, it helps to think that the original CSV tables aim to be convenient for the users in the first place, not to keep some purity of the database schema.
 
 In case you have "ambiguous column name" errors when joining colors table because of these stats fields, as an option to keep surrounding query unchanged, you can use subquery `(SELECT id, name, rgb, is_trans FROM colors)` in place of `colors` table. Or, depending on the context, a shorter list of columns, for example, `JOIN colors c` → `JOIN (SELECT id, name FROM colors) c`.
 
@@ -356,7 +356,7 @@ Columns: `id` (integer, primary key), `version` (integer), `set_num` (text).
 
 Being referenced by these three tables means inventory may include standard parts, minifigs, and even other sets.
 
-`version` is the inventory version on Rebrickable, starting from `1`.
+`version` is the inventory version on Rebrickable. Although in most cases version starts from 1, this is not mandatory (e.g. in [10875-1](https://rebrickable.com/sets/10875-1/#parts) it start from 2). Also versions can be non-sequential (e.g. [21011-1](https://rebrickable.com/sets/21011-1/#parts) has only versions 1 and 3).
 
 `set_num` references either [`minifigs.fig_num`](#minifigs) or [`sets.set_num`](#sets). So this table contains inventories for both sets and minifigs.
 
@@ -573,14 +573,14 @@ The following three sections describe `part_color_stats`, `part_stats`, and `col
 
 When calculating number of the set parts, Rebrickable includes parts from the set inventory, parts from the set minifigs, and does not include spare parts. For example, [60063-1](https://rebrickable.com/sets/60063-1/) states there are 218 parts in total. Inventory lists 189 parts and 7 minifigs. Remaining 29 parts (218-189=29) belong to these 7 minifigs. 27 spare parts are not counted.
 
-In case of [super sets](https://rebrickable.com/help/sets-types/) inventories from included sets are not considered. For example, [K10194-1](https://rebrickable.com/sets/K10194-1/), which has 8 sets, has 0 parts in total.
+In case of [super sets](https://rebrickable.com/help/sets-types/) inventories from the included sets are not considered. For example, [K10194-1](https://rebrickable.com/sets/K10194-1/), which has 8 sets, has 0 parts in total.
 
 The same considerations are used for `num_sets` and `num_parts` columns in the stats tables:
 - super sets never affect both these columns
 - when calculating number of sets, minifig parts are treated as parts of the set. I.e. no matter if part/color combination is included in one or more of the set minifigs and/or in the set inventory, `num_sets` for this part/color is always incremented by one
 - when calculating number of parts, stats tables use "flattened" set inventory. This is a union of the set inventory parts and all inventory parts of the set minifigs, and does not include spare parts. I.e. the same that Rebrickable does when calculating total number of the set parts, as described in the example above.
 
-Additionally worth mentioning sets with multiple inventory versions. On Rebrickable it is not like only the latest version is valid. All versions are valid. Yet difference may be very subtle. For example, in [42114-1](https://rebrickable.com/sets/42114-1/) inventories v1 and v2 differ in only one part out of 2193 parts.
+Additionally worth mentioning sets with multiple inventory versions. On Rebrickable it is not like only the latest version is valid. All versions are valid. Yet difference may be very subtle. For example, in [42114-1](https://rebrickable.com/sets/42114-1/) inventories v1 and v2 [differ in only one part](https://rebrickable.com/sets/compare/slow/?1-set=42114-1&2-set=42114-1&1-inv=67064&2-inv=122878) out of 2193 parts.
 
 In this case, for the stats purpose, `rb.db` takes the following approach. Additional inventory versions do not increase number of sets. And in calculating number of parts is used union of flattened set inventories from all inventory versions with duplicates removed. If different versions of flattened inventories have different number of parts for particular part/color combination, the larger one is used.
 
