@@ -108,10 +108,7 @@ class TestCustomTables():
             '16709pats37',
             '16709pats41',
             '64784pat0001c01',
-            '64784pat0002c01',
-
-            # None - not a pattern
-            'Eyepatch'
+            '64784pat0002c01'
         ]
         assert parts == expected
 
