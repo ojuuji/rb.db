@@ -30,18 +30,6 @@ SELECT *
 HAVING count(*) = 1
 '''
 
-SQL_CLR_NUM_SETS_EXP = '''
-SELECT num_sets
-  FROM colors
- WHERE name = "Black"
-'''
-
-SQL_CLR_NUM_SETS_CALC = '''
-SELECT sum(num_sets)
-  FROM part_color_stats
- WHERE color_id = 0
-'''
-
 
 class TestRbTables():
     def test_minifigs_have_standard_parts(self, rbdb):
@@ -71,11 +59,3 @@ class TestRbTables():
 
     def test_no_unique_parent_rels(self, rbdb):
         assert [] == rbdb.execute(SQL_NO_UNIQUE_RELS, ['parent_part_num']).fetchall()
-
-    def test_num_sets_from_colors_counts_duplicates(self, rbdb):
-        (exported,) = rbdb.execute(SQL_CLR_NUM_SETS_EXP).fetchone()
-        assert exported > 200000
-
-        (calculated,) = rbdb.execute(SQL_CLR_NUM_SETS_CALC).fetchone()
-        diff = abs(calculated - exported) / exported * 100.0
-        assert diff < 1.0  # allow 1% diff

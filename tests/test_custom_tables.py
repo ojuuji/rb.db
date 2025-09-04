@@ -1,6 +1,19 @@
 import pytest
 import re
 
+
+SQL_CLR_NUM_SETS_EXP = '''
+SELECT num_sets
+  FROM colors
+ WHERE name = "Black"
+'''
+
+SQL_CLR_NUM_SETS_CALC = '''
+SELECT sum(num_sets)
+  FROM part_color_stats
+ WHERE color_id = 0
+'''
+
 SQL_RELS_UNION = '''
 SELECT *
   FROM part_relationships
@@ -171,3 +184,11 @@ class TestCustomTables():
 
         rbdb.execute(f"SELECT count(*) FROM part_rels_extra WHERE child_part_num = '{part_num}'")
         assert (0,) == rbdb.fetchone()
+
+    def test_calculated_num_sets_matches_exported_num_sets(self, rbdb):
+        (exported,) = rbdb.execute(SQL_CLR_NUM_SETS_EXP).fetchone()
+        assert exported > 200000  # note, colors.num_sets includes duplicates
+
+        (calculated,) = rbdb.execute(SQL_CLR_NUM_SETS_CALC).fetchone()
+        diff = abs(calculated - exported) / exported * 100.0
+        assert diff < 1.0  # allow 1% diff
