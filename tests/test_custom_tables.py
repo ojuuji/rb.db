@@ -126,6 +126,9 @@ class TestCustomTables():
         assert parts == expected
 
     def test_rels_extra_rules_prints(self, rbdb):
+        """Verify that <child_part_num_regex> from "General rule for prints"
+        matches only valid prints.
+        """
         rbdb.execute(SQL_RELS_EXTRA_PRINTS)
         prints_regex = re.compile(r'.+pr\d+')
         extra_prints = [part for part, in rbdb if not prints_regex.fullmatch(part)]
@@ -136,6 +139,7 @@ class TestCustomTables():
             # prints the case-sensitive extra_regex rule is sufficient
             '10111c01pr0005a',
             '35499pr0032a',
+            '40514pr0006a',
             '4555c02pr0001a',
             '649pr0001HO',  # not a print
             '649pr0002HO',  # not a print
@@ -163,7 +167,6 @@ class TestCustomTables():
         '251pr0001',
         '251pr0002',
         '263pr0001',
-        '4jfig0003pr0001',  # it is marked as mold
         '601pr0001',
         '649pr0001HO',
         '649pr0002HO',
@@ -174,11 +177,18 @@ class TestCustomTables():
     ]
 
     def test_rels_extra_rules_print_exceptions(self, rbdb):
+        """Verify list of parts <XXX>pr<YYY> where part <XXX> exists and is not
+        a print or <XXX>pr<YYY>.
+        """
         parts = [part for part, in rbdb.execute(SQL_RELS_EXTRA_PRINTS_EXCEPT)]
         assert parts == TestCustomTables.NON_PRINTS
 
     @pytest.mark.parametrize('part_num', NON_PRINTS)
     def test_rels_extra_has_no_prints_from_exceptions(self, rbdb, part_num):
+        """Verify <exceptions_regex> from "General rule for prints". It is a
+        regex compilation of NON_PRINTS. So here we verify none of NON_PRINTS
+        appears in extra tables.
+        """
         rbdb.execute(f"SELECT count(*) FROM parts WHERE part_num = '{part_num}'")
         assert (1,) == rbdb.fetchone()
 
