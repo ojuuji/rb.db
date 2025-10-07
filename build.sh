@@ -14,12 +14,12 @@ mkdir -p data
 
 TS="$(date +%s)"
 
-for TABLE in {themes,colors,parts,part_{categories,relationships},elements,sets,minifigs,inventories,inventory_{parts,sets,minifigs}}.csv; do
+for TABLE in {themes,colors,parts,part_{categories,relationships},elements,sets,minifigs,inventories,inventory_{parts,sets,minifigs}}.csv.gz; do
 	if [[ -f data/$TABLE ]]; then
 		echo ":: skipped downloading (already exists) $TABLE"
 	else
 		echo ":: downloading $TABLE ..."
-		curl -s "https://cdn.rebrickable.com/media/downloads/${TABLE}.gz?${TS}" | gzip -cd > data/$TABLE
+		curl -s -o "data/$TABLE" "https://cdn.rebrickable.com/media/downloads/${TABLE}?${TS}"
 	fi
 done
 

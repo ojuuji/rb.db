@@ -39,7 +39,7 @@ jobs:
         id: cachekey
         run: |
           set -xeu
-          KEY="RB Tables $(curl -s https://rebrickable.com/downloads/ \
+          KEY="RB Tables GZipped $(curl -s https://rebrickable.com/downloads/ \
             | grep -Po '<span class="pull-right"><small>\K[^<]+' \
             | head -1 \
             | tr -d , \
@@ -50,7 +50,7 @@ jobs:
       - name: Set up cache for RB tables
         uses: actions/cache@v4
         with:
-          path: data/*.csv
+          path: data/*.csv.gz
           key: ${{ steps.cachekey.outputs.key }}
 
       - name: Build database

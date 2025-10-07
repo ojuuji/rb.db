@@ -1,6 +1,7 @@
 from contextlib import closing
 from dbconn import DbConnect, WORKDIR
 import csv
+import gzip
 import sys
 
 
@@ -14,7 +15,7 @@ def preprocess_value(key, value):
 
 
 def read_table(name):
-    with open(f'{WORKDIR}/../data/{name}.csv', 'r', encoding='utf-8') as f:
+    with gzip.open(f'{WORKDIR}/../data/{name}.csv.gz', 'rt', encoding='utf-8') as f:
         cf = csv.DictReader(f)
         rows = []
         for row in cf:

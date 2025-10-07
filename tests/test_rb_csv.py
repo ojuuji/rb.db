@@ -1,5 +1,6 @@
 from common import DATADIR
 import csv
+import gzip
 import pytest
 
 
@@ -19,6 +20,6 @@ class TestCsv():
         ('themes', 'id,name,parent_id')
     ])
     def test_table_headers(self, table, headers):
-        with open(f'{DATADIR}/{table}.csv', 'r', encoding='utf-8') as f:
+        with gzip.open(f'{DATADIR}/{table}.csv.gz', 'rt', encoding='utf-8') as f:
             cf = csv.DictReader(f)
             assert ','.join(cf.fieldnames) == headers
