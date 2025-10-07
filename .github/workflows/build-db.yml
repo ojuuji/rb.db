@@ -64,15 +64,15 @@ jobs:
           sqlite3 rb.db .dump > rb.dump
           REGEX="INSERT INTO rb_db_lov VALUES\('data_timestamp','\d+'\);"
           grep -qPx "$REGEX" rb.dump
-          grep -vPx "$REGEX" rb.dump | md5sum | cut -d\  -f1 > rb.dump.md5
-          echo "md5=$(cat rb.dump.md5)" >> $GITHUB_OUTPUT
+          grep -vPx "$REGEX" rb.dump | sha256sum | cut -d\  -f1 > rb.dump.sha256
+          echo "sha256=$(cat rb.dump.sha256)" >> $GITHUB_OUTPUT
 
       - name: Cache database dump hash
         id: hash
         uses: actions/cache@v4
         with:
-          path: data/rb.dump.md5
-          key: SQL Dump Hash ${{ steps.generate-hash.outputs.md5 }}
+          path: data/rb.dump.sha256
+          key: SQL Dump Hash ${{ steps.generate-hash.outputs.sha256 }}
 
       - name: Prepare release files
         if: steps.hash.outputs.cache-hit != 'true'
