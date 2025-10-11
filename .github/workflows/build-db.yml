@@ -41,6 +41,7 @@ jobs:
           set -xeu
           KEY="RB Tables $(curl -Is https://cdn.rebrickable.com/media/downloads/parts.csv.gz \
             | grep -iPo '^last-modified:\s*\K[^\r]+' \
+            | tr -d , \
             || date --utc "+%Y%m%d%H")"
           echo "key=${KEY}" >> $GITHUB_OUTPUT
 
