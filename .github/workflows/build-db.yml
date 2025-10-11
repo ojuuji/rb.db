@@ -39,11 +39,9 @@ jobs:
         id: cachekey
         run: |
           set -xeu
-          KEY="RB Tables GZipped $(curl -s https://rebrickable.com/downloads/ \
-            | grep -Po '<span class="pull-right"><small>\K[^<]+' \
-            | head -1 \
+          KEY="RB Tables GZipped $(curl -Is https://cdn.rebrickable.com/media/downloads/parts.csv.gz \
+            | grep -iPo '^last-modified:\s*\K[^\r]+' \
             | tr -d , \
-            | grep -Px '\w+ \d{1,2} \d{4} \d{1,2}:\d{2} [ap]\.m\.' \
             || date --utc "+%Y%m%d%H")"
           echo "key=${KEY}" >> $GITHUB_OUTPUT
 
