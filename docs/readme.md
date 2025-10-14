@@ -41,20 +41,23 @@ The main goal of `rb.db` is to provide original, unmodified tables from [Rebrick
 Releases are created automatically once a day, but only if there were actual changes since the last release.
 
 Retention policy:
-- git tag [`latest`]({{ site.github.repository_url }}/releases/tag/latest) is always recreated when releasing new version, so the latest version link is permanent
+
+- git tag [`latest`]({{ site.github.repository_url }}/releases/tag/latest) is always recreated when releasing new version, so the [latest version]({{ site.github.releases_url }}/download/latest/rb.db.xz) link is permanent
 - git tag `latest-v<N>`, where `<N>` is the latest schema version, is also always recreated, and similar tags for older schemas are retained. The rationale is described in [`schema_version`](#schema_version) section
 - the last 10 releases are retained unconditionally
 - for older releases is retained the latest release of the month
 
 # Database Schema
 
-For Rebrickable tables the main rule is to import them as-is, without adding/removing/modifying any table/column names or data (except for the purpose of data types conversion). Schema only enforces several constraints to ensure the database integrity and the relevance of this documentation:
+For Rebrickable tables the main rule is to import them as-is, without adding/removing/modifying any table/column names or data except for the purpose of data types conversion, as described further in this topic. Schema also enforces several constraints to ensure the database integrity and the relevance of this documentation:
+
 - foreign key constraints for all columns which reference other tables
 - value constraints (from `NOT NULL` to more specific whenever possible)
 - [`set_nums`](#set_nums) table to satisfy foreign key constraint for [`inventories.set_num`](#inventories)
 - rigid typing via SQLite [STRICT tables](https://www.sqlite.org/stricttables.html)
 
 CSV format, in which original Rebrickable tables are provided, cannot include types information for the stored data. Therefore column data types, used by the schema, are determined basing on the column content and SQLite3 specifics:
+
 - use only `INTEGER` and `TEXT` to avoid possible confusion, as the data types like `VARCHAR(N)` do not really imply any constraints in SQLite ([docs](https://www.sqlite.org/datatype3.html)). Rigid typing allows only a few data types, so this was (fortunately) not much of a choice
 - use `INTEGER` values `0` and `1` for boolean columns. Original tables store words `True`/`False` (or, before 14-Nov-2024, single `t`/`f` characters), but in context of the schema `0`/`1` are more appropriate as they allow to use natural conditions like `WHERE is_trans`/`WHERE NOT is_trans`
 - use `INTEGER` for columns containing id, year, quantity. The rest of columns are clearly text so it was not a hard guess
@@ -175,7 +178,7 @@ Columns: `id` (integer, primary key), `name` (text).
 
 `id` is a number, unique for each category. Referenced by [`parts.part_cat_id`](#parts).
 
-`name` is the category name on Rebrickable.
+`name` is the part category name on Rebrickable. It is used, for example, in `Category` dropdown on the [Parts](https://rebrickable.com/parts/) page.
 
 ## parts
 
@@ -258,6 +261,8 @@ Also, alternates not necessarily point to the latest molds, and they may have mo
 A,60176,32174
 M,89652,60176
 ```
+
+With that said, it is not easy to get the most relevant mold for a given part number using this table. As an alternative, you may try [`part_rels_resolved`](#part_rels_resolved) table.
 
 ### `P` - Print
 
@@ -441,6 +446,7 @@ Columns: `id` (integer, primary key), `sort_pos` (integer), `is_grayscale` (inte
 `is_grayscale` is a `0`/`1` flag indicating if color is considered as grayscale. In the following list it is set to `1` for points #3, #4, #5, to `0` for point #6, and to `NULL` for points #1, #2.
 
 With the `sort_pos` colors are ordered the following way:
+
 1. `[Unknown]`
 2. `[No Color/Any Color]`
 3. `White`
@@ -451,6 +457,7 @@ With the `sort_pos` colors are ordered the following way:
 It is based on the colors order used in _"Your Colors"_ section on the part pages on Rebrickable.
 
 Example:
+
 ```
 $ sqlite3 -csv rb.db "select id, name from colors natural join color_properties order by sort_pos limit 10"
 -1,[Unknown]
@@ -476,13 +483,15 @@ This table lists similar colors for every color. It is inspired by Rebrickable b
 Column `ref_id` is indexed, so it is better to search by it instead of `id`. For every pair of similar colors `X→Y` table also contains pair `Y→X` so it is really enough to search only by `ref_id` or `ref_name`.
 
 Additional rules apply:
+
 - `[Unknown]` color is never similar to any color
 - `[No Color/Any Color]` color is similar to all colors
-- any other color is similar also to itself i.e. there will be row with `ref_id = id`
+- any other color is similar also to itself i.e. there will be row where `ref_id = id`
 
-Whether two colors are similar is determined using Delta E metric. [Here](https://zschuessler.github.io/DeltaE/learn/) is great reading about it. Specifically is used _"dE00"_ algorithm and the maximum Delta E value `20`. For those curious, [Delta E chart for Rebrickable colors](delta_e_chart.html).
+Whether two colors are similar is determined using Delta E metric. [Here is great reading](https://zschuessler.github.io/DeltaE/learn/) about it. Specifically is used _"dE00"_ algorithm and the maximum Delta E value `20`. For those curious, [Delta E chart for Rebrickable colors](delta_e_chart.html).
 
 Example:
+
 ```
 $ sqlite3 rb.db "select name from similar_colors where ref_name = 'Red'"
 Red
@@ -518,6 +527,7 @@ Columns: `rel_type` (text), `child_part_num` (text), `parent_part_num` (text).
 This is a processed [`part_relationships`](#part_relationships) table with the same set of columns (see columns description there).
 
 As a result of processing it lists so-called _"resolved"_ relationships, which are calculated this way:
+
 - retain ony relationships [`A`](#a---alternate) and [`M`](#m---mold), as only these are subject of resolving (i.e. other rows would be the same as in `part_relationships`)
 - in case of molds resolve them the following way (read related details in [`M` - Mold](#m---mold) section):
   - always list the successor part as `parent_part_num`
@@ -554,6 +564,7 @@ Relationships involving "common denominator" parts there can be summarized the f
 When building this table, relationship is not added if it already exists in [`part_rels_resolved`](#part_rels_resolved) (for `rel_type` values `A`, `M`) or in [`part_relationships`](#part_relationships) (for the rest of `rel_type` values).
 
 So `part_rels_extra` table complements both these tables. In other words, this union does not have duplicate rows:
+
 ```
 SELECT *
   FROM part_relationships
@@ -576,11 +587,12 @@ When calculating number of the set parts, Rebrickable includes parts from the se
 In case of [super sets](https://rebrickable.com/help/sets-types/) inventories from the included sets are not considered. For example, [K10194-1](https://rebrickable.com/sets/K10194-1/), which has 8 sets, has 0 parts in total.
 
 The same considerations are used for `num_sets` and `num_parts` columns in the stats tables:
+
 - super sets never affect both these columns
 - when calculating number of sets, minifig parts are treated as parts of the set. I.e. no matter if part/color combination is included in one or more of the set minifigs and/or in the set inventory, `num_sets` for this part/color is always incremented by one
 - when calculating number of parts, stats tables use "flattened" set inventory. This is a union of the set inventory parts and all inventory parts of the set minifigs, and does not include spare parts. I.e. the same that Rebrickable does when calculating total number of the set parts, as described in the example above.
 
-Additionally worth mentioning sets with multiple inventory versions. On Rebrickable it is not like only the latest version is valid. All versions are valid. Yet difference may be very subtle. For example, in [42114-1](https://rebrickable.com/sets/42114-1/) inventories v1 and v2 [differ in only one part](https://rebrickable.com/sets/compare/slow/?1-set=42114-1&2-set=42114-1&1-inv=67064&2-inv=122878) out of 2193 parts.
+It is also worth mentioning the sets with multiple inventory versions. On Rebrickable it is not like only the latest version is valid. All versions are valid. Yet difference may be very subtle. For example, in [42114-1](https://rebrickable.com/sets/42114-1/) inventories v1 and v2 [differ in only one part](https://rebrickable.com/sets/compare/slow/?1-set=42114-1&2-set=42114-1&1-inv=67064&2-inv=122878) out of 2193 parts.
 
 In this case, for the stats purpose, `rb.db` takes the following approach. Additional inventory versions do not increase number of sets. And in calculating number of parts is used union of flattened set inventories from all inventory versions with duplicates removed. If different versions of flattened inventories have different number of parts for particular part/color combination, the larger one is used.
 

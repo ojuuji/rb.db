@@ -30,8 +30,16 @@ SELECT *
 HAVING count(*) = 1
 '''
 
+SQL_PART_MATERIALS = '''
+SELECT DISTINCT(part_material)
+  FROM parts
+ ORDER BY 1
+'''
+
 
 class TestRbTables():
+    """Various checks to ensure the docs are still relevant."""
+
     def test_minifigs_have_standard_parts(self, rbdb):
         assert (0,) != rbdb.execute(SQL_MINIFIGS_CONTENT % 'inventory_parts').fetchone()
 
@@ -45,7 +53,6 @@ class TestRbTables():
         sql = SQL_MINIFIGS_CONTENT % 'inventory_parts' + ' where is_spare'
         assert (0,) == rbdb.execute(sql).fetchone()
 
-    # Check to ensure the docs relevance (they are mentioned in docs)
     @pytest.mark.parametrize('part_num', ['75c23.75', '134916-740'])
     def test_parts_with_nonstandard_names_still_exist(self, rbdb, part_num):
         rbdb.execute(f"SELECT count(*) FROM parts WHERE part_num = '{part_num}'")
@@ -59,3 +66,16 @@ class TestRbTables():
 
     def test_no_unique_parent_rels(self, rbdb):
         assert [] == rbdb.execute(SQL_NO_UNIQUE_RELS, ['parent_part_num']).fetchall()
+
+    def test_part_materials(self, rbdb):
+        materials = [material for material, in rbdb.execute(SQL_PART_MATERIALS)]
+        expected = [
+            "Cardboard/Paper",
+            "Cloth",
+            "Flexible Plastic",
+            "Foam",
+            "Metal",
+            "Plastic",
+            "Rubber",
+        ]
+        assert materials == expected
