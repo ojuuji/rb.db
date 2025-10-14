@@ -14,6 +14,9 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: build
   cancel-in-progress: true
@@ -86,34 +89,13 @@ jobs:
         if: steps.hash.outputs.cache-hit != 'true'
         run: bash -x utils/create_release.sh
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
-
-      - name: Deploy site
-        if: steps.hash.outputs.cache-hit != 'true'
-        run: |
-          set -xeu
-          WORKFLOW_ID="$(gh workflow list | grep -Poi 'site.+\s\K\d+$')"
-          gh workflow run "$WORKFLOW_ID"
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}
-
-      - name: Trigger RBmerge build
-        if: steps.hash.outputs.cache-hit != 'true'
-        run: |
-          gh api \
-            --method POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/ojuuji/rbmerge/actions/workflows/93216836/dispatches \
-            -f "ref=master"
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prune old releases
         if: steps.hash.outputs.cache-hit != 'true'
         run: bash -x utils/prune_old_releases.sh
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prune old caches
         if: steps.hash.outputs.cache-hit != 'true'
@@ -122,4 +104,4 @@ jobs:
           NKEEP=5
           gh cache list --json id --jq ".[].id" | tail -n+$((NKEEP+1)) | xargs -rn1 gh cache delete
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

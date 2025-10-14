@@ -8,6 +8,9 @@ on:
       - 'docs/**'
       - 'examples/*'
 
+  release:
+    types: [published]
+
   workflow_dispatch:
 
 permissions:
@@ -17,10 +20,11 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
+    if: github.event_name != 'release' || github.event.release.tag_name == 'latest'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
