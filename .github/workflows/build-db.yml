@@ -92,6 +92,17 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Unlike other steps, this one needs PAT since GITHUB_TOKEN cannot trigger
+      # other workflows. So this step is made optional to simplify forking.
+      - name: Deploy site
+        if: steps.hash.outputs.cache-hit != 'true' && env.GH_TOKEN != ''
+        run: |
+          set -xeu
+          WORKFLOW_ID="$(gh workflow list | grep -Poi 'site.+\s\K\d+$')"
+          gh workflow run "$WORKFLOW_ID"
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+
       - name: Prune old releases
         if: steps.hash.outputs.cache-hit != 'true'
         run: bash -x utils/prune_old_releases.sh
