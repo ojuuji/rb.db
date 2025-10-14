@@ -79,6 +79,8 @@ jobs:
           cd data
           shasum -a256 rb.db > rb.db.sha256
           xz -k rb.db
+          gzip -k rb.db
+          zip rb.db.zip rb.db
 
       - name: Create release
         if: steps.hash.outputs.cache-hit != 'true'

@@ -14,7 +14,7 @@ Release ()
 		sleep 13.37
 	fi
 
-	gh release create "$tagname" --target master --title "$relname" rb.db.{xz,sha256}
+	gh release create "$tagname" --target master --title "$relname" rb.db.{xz,gz,zip,sha256}
 }
 
 echo ":: preparing release ..."
