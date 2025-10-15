@@ -2,10 +2,6 @@
 
 This repository ultimately generates an SQLite database file containing tables from [Rebrickable Downloads](https://rebrickable.com/downloads/) and a few custom tables and views, non-trivially generated from them.
 
-## How to Use
-
-There are many ways to interact with this file. Some examples can be found in the database documentation.
-
 Database documentation is best read on GitHub Pages: [https://ojuuji.github.io/rb.db/](https://ojuuji.github.io/rb.db/).
 
 ## How to Build
@@ -44,3 +40,24 @@ Or instead of `./build.sh` run `./build.sh -rbonly` if you want to generate `rb.
 On Windows you might have better luck with `py -m venv .venv` command instead of `python -m venv .venv`. Also use `source .venv/Scripts/activate` instead of `source .venv/bin/activate`.
 
 After the script completes, you will find the generated `rb.db` file in the `data` directory.
+
+You can query it without additional setup using Python:
+
+```sh
+python -m sqlite3 data/rb.db "your sql statement"
+```
+
+Example:
+
+```sh
+$ python -m sqlite3 data/rb.db "select count(*), part_material from parts group by part_material"
+(3001, 'Cardboard/Paper')
+(948, 'Cloth')
+(40, 'Flexible Plastic')
+(57, 'Foam')
+(17, 'Metal')
+(55191, 'Plastic')
+(303, 'Rubber')
+```
+
+Or you can use [sqlite3 CLI](https://sqlite.org/cli.html). All examples in documentation use this way.

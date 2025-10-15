@@ -684,4 +684,12 @@ New `rb.db` is released only when there is new data since the last release, so i
 
 # Examples
 
+All examples are generated the same way using [sqlite3 CLI](https://sqlite.org/cli.html) without any additional processing.
+
+For example, the first example in the table below is generated the following way. Output files (`available_part_colors.html` in this case) are created in the current directory.
+
+```sh
+sqlite3 -readonly data/rb.db < examples/available_part_colors.sql
+```
+
 {% include examples.md %}
