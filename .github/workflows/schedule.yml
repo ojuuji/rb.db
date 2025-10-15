@@ -2,11 +2,12 @@ name: schedule
 
 on:
   schedule:
-    - cron: '42 8 * * *'  # daily at 8:42 UTC
+    - cron: '24 7 * * *'  # daily at 7:24 UTC
 
 jobs:
   build-db:
     uses: ./.github/workflows/build-db.yml
     permissions:
+      actions: write
       contents: write
     secrets: inherit
