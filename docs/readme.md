@@ -67,7 +67,7 @@ Schema of the Rebrickable tables is described in [Rebrickable Tables](#rebrickab
 
 Almost all columns in the tables cannot be `NULL`. Thus this is not mentioned in the columns description, and only for nullable columns there will be explicit note about this.
 
-#### Note about CSV import in SQLite3
+### Note about CSV import in SQLite3
 
 Original Rebrickable tables are provided in CSV format. SQLite [can import](https://sqlite.org/cli.html#importing_files_as_csv_or_other_formats) tables from CSV files directly. However it unconditionally treats empty values as empty strings ([details](https://sqlite.org/forum/forumpost/9da85fe4fc6760c4)) whereas in context of Rebrickable tables these values have to become `NULL` in database.
 
@@ -137,7 +137,7 @@ You may also take a look at [`color_stats`](#color_stats) table, which contains 
 
 Example:
 
-```
+```sh
 $ sqlite3 -header -column rb.db "select is_trans, count(*) from colors group by is_trans union select 'total', count(*) from colors"
 is_trans  count(*)
 --------  -----
@@ -162,7 +162,7 @@ As for now, the maximum length of themes chain is **3** (A→B→C).
 
 Example:
 
-```
+```sh
 $ sqlite3 -table -nullvalue NULL rb.db "select * from themes where 52 in (id, parent_id) limit 2"
 +----+---------+-----------+
 | id |  name   | parent_id |
@@ -194,7 +194,7 @@ Although uncommon, part numbers may also contain a dot ([`75c23.75`](https://reb
 
 `part_material` is the material from which this part is made. Possible values:
 
-```
+```sh
 $ sqlite3 rb.db "select distinct(part_material) from parts"
 Cardboard/Paper
 Cloth
@@ -241,14 +241,14 @@ Rebrickable uses this relationship in the build matching option _"Ignore mold va
 
 The successor part is not necessarily listed as `child_part_num`. And an older part is not necessarily listed as `parent_part_num`. Here are two examples in the form `child_part_num (year_from, year_to) -> parent_part_num (year_from, year_to)`:
 
-```
+```text
 60608 (2007, <present>) -> 3854 (1978, 2008)
 3002a (1954, 1990) -> 3002 (1979, <present>)
 ```
 
 In case of multiple molds not all combinations are listed. For example, for parts [`67695`](https://rebrickable.com/parts/67695/), [`93571`](https://rebrickable.com/parts/93571/), [`32174`](https://rebrickable.com/parts/32174/) there are two rows:
 
-```
+```csv
 M,93571,32174
 M,67695,32174
 ```
@@ -257,7 +257,7 @@ But there are no row `M,93571,67695` (for the info, `67695` is the latest mold).
 
 Also, alternates not necessarily point to the latest molds, and they may have molds too (as mentioned above, 32174 is an older mold of 67695):
 
-```
+```csv
 A,60176,32174
 M,89652,60176
 ```
@@ -296,7 +296,7 @@ Columns: `element_id` (integer, primary key), `part_num` (text), `color_id` (int
 
 The same sets of `part_num`+`color_id`+`design_id` may have multiple `element_id`:
 
-```
+```sh
 $ sqlite3 -table rb.db "select * from elements where part_num = '75c06'"
 +------------+----------+----------+-----------+
 | element_id | part_num | color_id | design_id |
@@ -458,7 +458,7 @@ It is based on the colors order used in _"Your Colors"_ section on the part page
 
 Example:
 
-```
+```sh
 $ sqlite3 -csv rb.db "select id, name from colors natural join color_properties order by sort_pos limit 10"
 -1,[Unknown]
 9999,"[No Color/Any Color]"
@@ -492,7 +492,7 @@ Whether two colors are similar is determined using Delta E metric. [Here is grea
 
 Example:
 
-```
+```sh
 $ sqlite3 rb.db "select name from similar_colors where ref_name = 'Red'"
 Red
 Trans-Red
@@ -565,7 +565,7 @@ When building this table, relationship is not added if it already exists in [`pa
 
 So `part_rels_extra` table complements both these tables. In other words, this union does not have duplicate rows:
 
-```
+```sql
 SELECT *
   FROM part_relationships
  WHERE rel_type NOT IN ('A', 'M')

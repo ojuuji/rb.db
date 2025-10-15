@@ -6,11 +6,17 @@
 	],
 	"settings": {
 		"files.associations": {
-			"delta_e_chart_template.html": "jinja-html"
+			"**/docs/**/*.html": "liquid",
+			"**/utils/*.{html,md}": "jinja-html"
 		},
 		"files.exclude": {
 			"**/__pycache__/": true,
 			".venv/": true
+		},
+		"markdownlint.config": {
+			"MD001": false,
+			"MD033": false,
+			"MD041": false
 		}
 	}
 }
