@@ -11,12 +11,12 @@ class Color:
         self.id = id
         self.name = name
         self.r, self.g, self.b = [int(rgb[x: x + 2], 16) / 255.0 for x in [0, 2, 4]]
-        self.graydiff = max(abs(self.r - self.g), abs(self.r - self.b), abs(self.g - self.b))
+        self.gray_diff = max(abs(self.r - self.g), abs(self.r - self.b), abs(self.g - self.b))
 
     def is_grayscale(self):
         if self.name == HARDCODED_ORDER[0] or self.name == HARDCODED_ORDER[1]:
             return None
-        return self.graydiff < GRAY_THRESHOLD
+        return self.gray_diff < GRAY_THRESHOLD
 
     def __lt__(self, other):
         if self.name == other.name:
