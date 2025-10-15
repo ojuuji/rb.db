@@ -1,5 +1,3 @@
-.bail ON
-
 DROP TABLE IF EXISTS color_properties;
 
 DROP TABLE IF EXISTS similar_color_ids;

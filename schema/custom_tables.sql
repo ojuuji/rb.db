@@ -1,5 +1,3 @@
-.bail ON
-
 CREATE TABLE color_properties(
   id INTEGER PRIMARY KEY REFERENCES colors(id),
   sort_pos INTEGER NOT NULL,

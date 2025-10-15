@@ -1,5 +1,3 @@
-.bail ON
-
 /*
   Original Rebrickable tables
 */

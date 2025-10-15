@@ -1,5 +1,3 @@
-.bail ON
-
 CREATE UNIQUE INDEX colors_name_idx ON colors(name);
 
 CREATE INDEX themes_parent_id_idx ON themes(parent_id);
