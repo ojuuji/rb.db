@@ -1,0 +1,35 @@
+name: schedule
+
+on:
+  schedule:
+    - cron: '52 7 * * *'  # daily at 7:52
+
+jobs:
+  preparation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check repository
+        env:
+          MY_REPO: ojuuji/rb.db
+        if: env.GITHUB_REPOSITORY != env.MY_REPO
+        run: |
+          echo "Need to adjust this workflow. See a job summary for details." >&2
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          # If you want to enable scheduled builds:
+          Please make these two changes in [\`.github/workflows/schedule.yml\`](https://github.com/$GITHUB_REPOSITORY/edit/$GITHUB_REF_NAME/.github/workflows/schedule.yml):
+          1. [here](https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/.github/workflows/schedule.yml#L5) set different schedule time
+          2. [here](https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/.github/workflows/schedule.yml#L13) change \`$MY_REPO\` to \`$GITHUB_REPOSITORY\`
+          # If you want to disable scheduled builds:
+          This can be done without repository commit. Navigate to the [\`schedule\` workflow](https://github.com/$GITHUB_REPOSITORY/actions/workflows/schedule.yml).
+          Click on the button with three dots (\`"..."\`) at the right top corner of the page and select \`Disable workflow\`.
+          EOF
+
+          exit 1
+
+  build-db:
+    needs: preparation
+    uses: ./.github/workflows/build-db.yml
+    permissions:
+      contents: write
+    secrets: inherit
