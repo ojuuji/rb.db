@@ -7,7 +7,7 @@ if [[ $# -gt 1 || $# -eq 1 && "$1" != "-rbonly" ]]; then
 	exit 1
 fi
 
-which curl gzip python sqlite3 > /dev/null
+which curl gzip python > /dev/null
 
 cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
 mkdir -p data
@@ -23,21 +23,25 @@ for TABLE in {themes,colors,parts,part_{categories,relationships},elements,sets,
 	fi
 done
 
-echo ":: sqlite version: $(sqlite3 -version | grep -Po '(\d+\.)+\d+') (exe), $(python -c 'import sqlite3; print(sqlite3.sqlite_version)') (python)"
+echo ":: $(python -m sqlite3 --version)"
 
 echo ":: creating Rebrickable tables ..."
 
+apply_sql() {
+	python -c "import sqlite3; sqlite3.connect('data/rb.db').executescript(open('$1').read())"
+}
+
 rm -f data/rb.db
-sqlite3 data/rb.db < schema/rb_tables.sql
+apply_sql schema/rb_tables.sql
 
 python build/import_rb_tables.py
 
 echo ":: creating indexes on Rebrickable tables ..."
-sqlite3 data/rb.db < schema/rb_indexes.sql
+apply_sql schema/rb_indexes.sql
 
 if [[ $# -eq 0 ]]; then
 	echo ":: creating custom tables ..."
-	sqlite3 data/rb.db < schema/custom_tables.sql
+	apply_sql schema/custom_tables.sql
 
 	python build/gen_color_properties.py
 	python build/gen_similar_color_ids.py
@@ -45,7 +49,7 @@ if [[ $# -eq 0 ]]; then
 	python build/gen_part_rels_extra.py
 
 	echo ":: creating indexes on custom tables ..."
-	sqlite3 data/rb.db < schema/custom_indexes.sql
+	apply_sql schema/custom_indexes.sql
 fi
 
 echo ":: running tests ..."

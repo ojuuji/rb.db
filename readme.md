@@ -26,7 +26,7 @@ If you want to build on a schedule, first enable scheduled workflow (they are di
 
 This way you build `rb.db` file manually on your PC.
 
-To build `rb.db` locally you need Python (tested on 3.12), SQLite3 (3.37 or above), and Bash (on Windows you can use Git Bash).
+To build `rb.db` locally you need Python (tested on 3.12) and Bash (on Windows you can use Git Bash).
 
 Run these commands in Bash shell:
 
@@ -42,7 +42,5 @@ pip install -r requirements.txt
 Or instead of `./build.sh` run `./build.sh -rbonly` if you want to generate `rb.db` containing only [Rebrickable tables](https://ojuuji.github.io/rb.db/#rebrickable-tables) without [custom tables](https://ojuuji.github.io/rb.db/#custom-tables).
 
 On Windows you might have better luck with `py -m venv .venv` command instead of `python -m venv .venv`. Also use `source .venv/Scripts/activate` instead of `source .venv/bin/activate`.
-
-If `build.sh` complains about missing `sqlite3` executable, an archive containing prebuilt `sqlite3.exe` for Windows can be downloaded from [SQLite Download Page](https://www.sqlite.org/download.html). On Linux this is usually solved by installing `sqlite` package (via `dnf install sqlite` or equivalent for other package managers).
 
 After the script completes, you will find the generated `rb.db` file in the `data` directory.
