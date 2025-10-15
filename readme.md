@@ -1,16 +1,20 @@
 # rb.db ![build status](https://github.com/ojuuji/rb.db/actions/workflows/build-db.yml/badge.svg)
 
-Documentation is best read on GitHub Pages: [https://ojuuji.github.io/rb.db/](https://ojuuji.github.io/rb.db/)
+Documentation for the database itself is best read on GitHub Pages: [https://ojuuji.github.io/rb.db/](https://ojuuji.github.io/rb.db/). Here is only the info on how to build the database file.
 
 ## How to Build
 
-The easiest way is to fork the repository and build using GitHub Actions.
+There are two ways to build it: build locally and build using GitHub Actions (so GitHub builds it for you and the database file is published in the Releases section).
 
-After you forked repository, go to `Actions` tab → select `build` workflow → click `Run workflow` split button → click `Run workflow` button. The build workflow will start, and once it completes, the database will be published in the Releases section of the repository.
+### Build via GitHub Actions
+
+This is the easiest way.
+
+Fork the repository, then go to `Actions` tab → select `build` workflow → click `Run workflow` split button → click `Run workflow` button. The build workflow will start, and once it completes, the database will be published in the Releases section of the repository.
 
 If you want to build on a schedule, first enable scheduled workflow (they are disabled by default in forks). Go to `Actions` tab → select `schedule` workflow → click `Enable workflow` button. It is also recommended to update [cron expression](https://github.com/ojuuji/rb.db/blob/master/.github/workflows/schedule.yml#L5) in this case (set different time).
 
-### Local Build
+### Build Locally
 
 To build `rb.db` locally you need Python (tested on 3.12), SQLite3 (3.37 or above), and Bash (on Windows you can use Git Bash). Run these commands in Bash shell:
 
