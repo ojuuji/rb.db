@@ -2,7 +2,7 @@ name: schedule
 
 on:
   schedule:
-    - cron: '24 7 * * *'  # daily at 7:24 UTC
+    - cron: '52 7 * * *'  # daily at 7:52 UTC
 
 jobs:
   build-db:
