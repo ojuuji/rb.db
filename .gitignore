@@ -1,4 +1,5 @@
 __pycache__
 data
 docs/examples
+env.sh
 .venv
