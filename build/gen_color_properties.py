@@ -18,25 +18,16 @@ class Color:
             return None
         return self.gray_diff < GRAY_THRESHOLD
 
-    def __lt__(self, other):
-        if self.name == other.name:
-            return False
 
-        for color in HARDCODED_ORDER:
-            if self.name == color:
-                return True
-            if other.name == color:
-                return False
+def color_sort_key(color):
+    if color.name in HARDCODED_ORDER:
+        return (1, HARDCODED_ORDER.index(color.name))
 
-        lgs = self.is_grayscale()
-        rgs = other.is_grayscale()
-        if lgs or rgs:
-            return self.r < other.r if lgs and rgs else lgs
+    if color.is_grayscale():
+        return (2, color.r)
 
-        lh, ls, lv = colorsys.rgb_to_hsv(self.r, self.g, self.b)
-        rh, rs, rv = colorsys.rgb_to_hsv(other.r, other.g, other.b)
-
-        return lh < rh if lh != rh else ls < rs if ls != rs else lv < rv
+    h, s, v = colorsys.rgb_to_hsv(color.r, color.g, color.b)
+    return (3, h, s, v)
 
 
 def gen_color_properties(conn):
@@ -47,7 +38,7 @@ def gen_color_properties(conn):
         for id, name, rgb in cur.execute('SELECT id, name, rgb FROM colors'):
             colors.append(Color(id, name, rgb))
 
-    sorted_colors = sorted(colors)
+    sorted_colors = sorted(colors, key=color_sort_key)
     with conn, closing(conn.cursor()) as cur:
         pos = 0
         for color in sorted_colors:
