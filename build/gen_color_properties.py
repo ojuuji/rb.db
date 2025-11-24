@@ -23,11 +23,10 @@ def color_sort_key(color):
     if color.name in HARDCODED_ORDER:
         return (1, HARDCODED_ORDER.index(color.name))
 
-    h, s, v = colorsys.rgb_to_hsv(color.r, color.g, color.b)
-
     if color.is_grayscale():
         return (2, color.r)
 
+    h, s, v = colorsys.rgb_to_hsv(color.r, color.g, color.b)
     return (3, h, s, v)
 
 
