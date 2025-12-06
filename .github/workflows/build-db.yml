@@ -42,7 +42,7 @@ jobs:
         id: cachekey
         run: |
           set -xeu
-          KEY="RB Tables $(curl -Is https://cdn.rebrickable.com/media/downloads/parts.csv.gz \
+          KEY="RB Tables $(curl -Is "https://cdn.rebrickable.com/media/downloads/parts.csv.gz?$(date +%s)" \
             | grep -iPo '^last-modified:\s*\K[^\r]+' \
             | tr -d , \
             || date --utc "+%Y%m%d%H")"
