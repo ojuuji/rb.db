@@ -6,8 +6,7 @@ WORKDIR="$(dirname "$(readlink -f "$BASH_SOURCE")")"
 
 for AR in xz gz zip; do
 	SIZE="$(gh release view latest --json assets --jq '.assets | map(select(.name == "rb.db.'$AR'")) | .[].size')"
-	SIZE=$(((SIZE / 1024 * 10 + 512) / 1024))  # +512 to round e.g. 20.47 to 20.5
-	SIZE="$((SIZE / 10)).$((SIZE % 10))M"
+	SIZE="$(printf "%.1fM" "$((SIZE / 1024 / 1024)).$((SIZE * 1000 / 1024 / 1024 % 1000))")"
 	sed -i "s/<!--DB_${AR^^}_SIZE-->/$SIZE/" "$WORKDIR/../docs/_includes/download.html"
 done
 

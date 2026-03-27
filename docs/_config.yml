@@ -1,5 +1,5 @@
 title: rb.db
 # description:
 author:
-  name: Mikalai Ananenka
+  name: Mikalai Ananenka  # cspell:disable-line
 remote_theme: pages-themes/primer@v0.6.0
