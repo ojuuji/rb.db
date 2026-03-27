@@ -140,9 +140,9 @@ class TestCustomTables():
             '10111c01pr0005a',
             '35499pr0032a',
             '40514pr0006a',
-            '4555c02pr0001a',
             '649pr0001HO',  # not a print
             '649pr0002HO',  # not a print
+            '74432pr0001a',
             '75113pr0001a',
             '75115pr0006a',
             '75115pr0014a',

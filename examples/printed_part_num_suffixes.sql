@@ -7,7 +7,7 @@ SELECT datetime(value, 'unixepoch') 'DB version'
   FROM rb_db_lov
  WHERE key = 'data_timestamp';
 
--- For prints, having 'pr' in `part_num`, all suffix formats in a form where every letter and digit are replaced with `x` and `N`. For example, both `3009pr0027e` and `4555c02pr0001a` will have suffix `NNNNx`.
+-- For prints, having 'pr' in `part_num`, all suffix formats in a form where every letter and digit are replaced with `x` and `N`. For example, both `3009pr0027e` and `75113pr0001a` will have suffix `NNNNx`.
 
   WITH RECURSIVE t(part_num, suffix, i)
     AS (SELECT child_part_num, substr(child_part_num, 2 + instr(child_part_num, 'pr')), 1
