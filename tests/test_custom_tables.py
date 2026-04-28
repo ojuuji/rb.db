@@ -140,8 +140,6 @@ class TestCustomTables():
             '10111c01pr0005a',
             '35499pr0032a',
             '40514pr0006a',
-            '649pr0001HO',  # not a print
-            '649pr0002HO',  # not a print
             '74432pr0001a',
             '75113pr0001a',
             '75115pr0006a',
@@ -152,12 +150,9 @@ class TestCustomTables():
             '75121pr0005a',
             '93088pr0002kc',
             '93088pr0008c01',
-            'dupupn0013c02pr0001a'
+            'dupupn0013c02pr0001a',
         ]
-        expected_nonprints = [
-            '649pr0001HO',
-            '649pr0002HO'
-        ]
+        expected_nonprints = []
         assert extra_prints == expected
         assert nonprints == expected_nonprints
 
@@ -168,17 +163,14 @@ class TestCustomTables():
         '251pr0002',
         '263pr0001',
         '601pr0001',
-        '649pr0001HO',
-        '649pr0002HO',
-        '650pr0001',
         '655pr0001',
         '670pr0001',
-        '671pr0001'
+        '671pr0001',
     ]
 
     def test_rels_extra_rules_print_exceptions(self, rbdb):
         """Verify list of parts <XXX>pr<YYY> where part <XXX> exists and is not
-        a print or <XXX>pr<YYY>.
+        a print of <XXX>pr<YYY>.
         """
         parts = [part for part, in rbdb.execute(SQL_RELS_EXTRA_PRINTS_EXCEPT)]
         assert parts == TestCustomTables.NON_PRINTS
