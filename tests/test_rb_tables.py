@@ -49,9 +49,14 @@ class TestRbTables():
     def test_minifigs_do_not_have_sets(self, rbdb):
         assert (0,) == rbdb.execute(SQL_MINIFIGS_CONTENT % 'inventory_sets').fetchone()
 
-    def test_minifigs_do_not_have_spare_parts(self, rbdb):
+    def test_minifigs_may_have_spare_parts(self, rbdb):
         sql = SQL_MINIFIGS_CONTENT % 'inventory_parts' + ' where is_spare'
-        assert (0,) == rbdb.execute(sql).fetchone()
+        assert rbdb.execute(sql).fetchone()[0] > 0
+
+    def test_example_of_minifig_with_spare_parts_is_relevant(self, rbdb):
+        fig_num = 'fig-017136'
+        sql = f"{SQL_MINIFIGS_CONTENT % 'inventory_parts'} where is_spare and fig_num = '{fig_num}'"
+        assert (1,) == rbdb.execute(sql).fetchone()
 
     @pytest.mark.parametrize('part_num', ['75c23.75', '134916-740'])
     def test_parts_with_nonstandard_names_still_exist(self, rbdb, part_num):
