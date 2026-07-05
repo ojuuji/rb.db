@@ -57,7 +57,6 @@ AS
               ON i.set_num = im.fig_num
             JOIN inventory_parts ip
               ON ip.inventory_id = i.id
-           WHERE NOT is_spare
          )
        , flattened_set_parts
       AS (SELECT set_num, version, year, part_num, color_id, sum(quantity) quantity, min(img_url) img_url

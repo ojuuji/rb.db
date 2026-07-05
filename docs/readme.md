@@ -393,7 +393,7 @@ Columns: `inventory_id` (integer), `part_num` (text), `color_id` (integer), `qua
 
 `quantity` is a number of combinations `part_num`+`color_id`+`is_spare` in this inventory. Note that for spare parts there will be separate rows in inventory.
 
-`is_spare` is a `0`/`1` flag indicating if this is a spare part. Since Jun-2026 minifig inventories may also have spare parts (example: [fig-017136](https://rebrickable.com/minifigs/fig-017136/)).
+`is_spare` is a `0`/`1` flag indicating if this is a spare part. Currently minifig inventories never have spare parts. Only the set inventories may have spare parts, including spare parts for minifigs from these sets. Thus, a situation is possible when the set inventory contains spare part that is unique to this inventory (i.e. it is only used in minifig which has its own inventory).
 
 `img_url` is the part image URL. When not `NULL` it always starts with `'https://cdn.rebrickable.com/media/parts/'`.
 
