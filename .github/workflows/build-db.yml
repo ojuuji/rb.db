@@ -27,10 +27,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: 3.12
           cache: pip
@@ -49,7 +49,7 @@ jobs:
           echo "key=${KEY}" >> $GITHUB_OUTPUT
 
       - name: Set up cache for RB tables
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: data/*.csv
           key: ${{ steps.cachekey.outputs.key }}
@@ -70,7 +70,7 @@ jobs:
 
       - name: Cache database dump hash
         id: hash
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: data/rb.dump.md5
           key: SQL Dump Hash ${{ steps.generate-hash.outputs.md5 }}
