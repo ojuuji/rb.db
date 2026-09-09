@@ -107,6 +107,9 @@ class TestCustomTables():
         assert parts == sorted(expected)
 
     def test_rels_extra_rules_patterns(self, rbdb):
+        """Verify that <child_part_num_regex> from "General rule for patterns"
+        matches only valid patterns.
+        """
         rbdb.execute(SQL_RELS_EXTRA_PATTERNS)
         regex = re.compile(r'.+pat\d+(pr\d+)?')
         parts = [part for part, in rbdb if not regex.fullmatch(part)]
@@ -120,6 +123,7 @@ class TestCustomTables():
             '16709pats27',
             '16709pats37',
             '16709pats41',
+            '16709pats44',
             '64784pat0001c01',
             '64784pat0002c01'
         ]
